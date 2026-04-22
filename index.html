@@ -19,20 +19,25 @@
       --card-bg:     rgba(8, 0, 20, 0.82);
     }
 
-    html { min-height: 100%; }
+    html {
+      /* let the page be exactly as tall as the image at current width */
+      min-height: 100%;
+    }
 
     body {
       font-family: 'Press Start 2P', monospace;
       color: #fff;
       min-height: 100%;
       overflow-x: hidden;
-      background-image: url('bg.jpg');
+      /* Background image: full width, natural height, scrollable */
+      background-image: url('data:image/jpeg;base64,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');
       background-size: 100% auto;
       background-repeat: no-repeat;
       background-position: top center;
-      background-color: #04001a;
+      background-color: #04001a; /* fallback beneath image */
     }
 
+    /* Scanlines overlay */
     body::after {
       content: '';
       position: fixed;
@@ -45,6 +50,7 @@
       z-index: 999;
     }
 
+    /* ── UI layer ── */
     .ui {
       position: relative;
       z-index: 1;
@@ -52,9 +58,11 @@
       flex-direction: column;
       align-items: center;
       padding: 0 16px 50px;
+      /* Push cards down past the sun/mountains in the image (~42% of image height) */
       padding-top: calc(42vw);
     }
 
+    /* Title */
     .site-title {
       font-size: clamp(20px, 6vw, 38px);
       color: var(--neon-yellow);
@@ -71,9 +79,10 @@
     }
     @keyframes titleFlicker {
       0%,91%,95%,100% { opacity: 1; }
-      93% { opacity: .78; }
+      93%             { opacity: .78; }
     }
 
+    /* Cards */
     .cards {
       width: 100%;
       max-width: 480px;
@@ -97,10 +106,15 @@
       cursor: pointer;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
+      transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+
+      /* Slide-in start state */
       opacity: 0;
       transform: translateY(20px);
-      transition: opacity .4s ease, transform .4s ease;
+      transition: opacity .4s ease, transform .4s ease, box-shadow .14s ease, border-color .14s ease;
     }
+
+    /* Corner accents */
     .card::before, .card::after {
       content: '';
       position: absolute;
@@ -110,16 +124,23 @@
     }
     .card::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
     .card::after  { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
     .card.visible {
       opacity: 1;
       transform: translateY(0);
     }
-    .card.visible:hover {
-      transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
-      transform: translateY(-3px) scale(1.016);
+
+    .card:hover {
       border-color: var(--neon-cyan);
-      box-shadow: 0 0 14px rgba(0,246,255,.5), 0 0 34px rgba(0,246,255,.18);
+      box-shadow:
+        0 0 14px rgba(0,246,255,.5),
+        0 0 34px rgba(0,246,255,.18),
+        inset 0 0 22px rgba(0,246,255,.05);
+      transform: translateY(-3px) scale(1.016);
     }
+    /* don't let hover fight the slide-in transition */
+    .card.visible:hover { transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease; }
+
     .shimmer {
       position: absolute; inset: 0;
       background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.08) 50%, transparent 70%);
@@ -128,108 +149,205 @@
       pointer-events: none;
     }
     .card:hover .shimmer { transform: translateX(100%); }
+
     .ripple {
-      position: absolute; border-radius: 50%;
+      position: absolute;
+      border-radius: 50%;
       background: rgba(0,246,255,.32);
       transform: scale(0);
       animation: rippleAnim .5s linear;
       pointer-events: none;
     }
     @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
     .card-icon {
-      width: 52px; height: 52px; flex-shrink: 0;
+      width: 52px; height: 52px;
+      flex-shrink: 0;
       background: rgba(20,0,45,.9);
       border: 2px solid var(--neon-purple);
       border-radius: 5px;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 26px;
-      position: relative; overflow: hidden;
+      position: relative;
+      overflow: hidden;
     }
     .card-icon::after {
-      content: ''; position: absolute; inset: 0;
+      content: '';
+      position: absolute; inset: 0;
       background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 60%);
     }
+
     .card-text { flex: 1; }
     .card-name {
       font-size: clamp(10px, 2.8vw, 13px);
-      color: var(--neon-yellow); letter-spacing: 1px;
-      text-shadow: 0 0 8px rgba(255,230,0,.5); line-height: 1.5;
+      color: var(--neon-yellow);
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(255,230,0,.5);
+      line-height: 1.5;
     }
-    .card-url { font-size: 8px; color: rgba(255,255,255,.5); margin-top: 4px; letter-spacing: .4px; }
+    .card-url {
+      font-size: 8px;
+      color: rgba(255,255,255,.5);
+      margin-top: 4px;
+      letter-spacing: .4px;
+    }
+
     .card-arrow {
-      font-size: 14px; color: var(--neon-pink);
+      font-size: 14px;
+      color: var(--neon-pink);
       text-shadow: 0 0 8px var(--neon-pink);
       animation: arrowBlink 1.4s steps(1) infinite;
     }
-    @keyframes arrowBlink { 0%,49%{opacity:1} 50%,100%{opacity:.2} }
+    @keyframes arrowBlink {
+      0%,49% { opacity: 1; }
+      50%,100%{ opacity: .2; }
+    }
 
+    /* Contact card */
     .contact-card {
-      background: var(--card-bg); border: 2px solid var(--neon-pink);
-      border-radius: 5px; padding: 18px 14px 14px;
-      display: flex; flex-direction: column; align-items: center; gap: 9px;
-      opacity: 0; transform: translateY(20px);
-      transition: opacity .4s ease, transform .4s ease;
+      background: var(--card-bg);
+      border: 2px solid var(--neon-pink);
+      border-radius: 5px;
+      padding: 18px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
       position: relative;
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .4s ease, transform .4s ease;
     }
     .contact-card::before, .contact-card::after {
-      content: ''; position: absolute;
-      width: 8px; height: 8px; border-color: var(--neon-purple); border-style: solid;
+      content: '';
+      position: absolute;
+      width: 8px; height: 8px;
+      border-color: var(--neon-purple);
+      border-style: solid;
     }
     .contact-card::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
     .contact-card::after  { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
     .contact-card.visible { opacity: 1; transform: translateY(0); }
+
     .contact-icon { font-size: 26px; }
-    .contact-title { font-size: 13px; color: var(--neon-yellow); letter-spacing: 1px; text-shadow: 0 0 8px rgba(255,230,0,.5); }
-    .contact-sub { font-size: 8px; color: rgba(255,255,255,.6); text-align: center; line-height: 1.9; letter-spacing: .5px; }
+    .contact-title {
+      font-size: 13px;
+      color: var(--neon-yellow);
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(255,230,0,.5);
+    }
+    .contact-sub {
+      font-size: 8px;
+      color: rgba(255,255,255,.6);
+      text-align: center;
+      line-height: 1.9;
+      letter-spacing: .5px;
+    }
     .email-btn {
-      display: inline-block; background: var(--neon-pink); color: #0d0118;
-      font-family: 'Press Start 2P', monospace; font-size: 10px;
-      padding: 10px 22px; border-radius: 4px; text-decoration: none;
-      letter-spacing: 1px; border: none; cursor: pointer;
+      display: inline-block;
+      background: var(--neon-pink);
+      color: #0d0118;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 10px 22px;
+      border-radius: 4px;
+      text-decoration: none;
+      letter-spacing: 1px;
+      border: none;
+      cursor: pointer;
       transition: transform .14s ease, box-shadow .14s ease;
-      box-shadow: 0 0 12px rgba(255,45,120,.6); margin-top: 2px;
+      box-shadow: 0 0 12px rgba(255,45,120,.6);
+      margin-top: 2px;
     }
     .email-btn:hover { transform: scale(1.05); box-shadow: 0 0 22px rgba(255,45,120,1); }
     .email-btn:active { transform: scale(.97); }
-    .contact-email { font-size: 7px; color: rgba(255,255,255,.38); letter-spacing: .5px; }
-    .footer { padding: 22px 0 8px; font-size: 18px; animation: heartbeat 1.4s ease infinite; }
-    @keyframes heartbeat {
-      0%,100%{transform:scale(1)} 14%{transform:scale(1.3)}
-      28%{transform:scale(1)} 42%{transform:scale(1.2)} 56%{transform:scale(1)}
+
+    .contact-email {
+      font-size: 7px;
+      color: rgba(255,255,255,.38);
+      letter-spacing: .5px;
     }
-    .sparkle { position:fixed; pointer-events:none; font-size:10px; z-index:998; animation:sparkleFade .8s ease forwards; }
-    @keyframes sparkleFade { 0%{opacity:1;transform:scale(1) translateY(0)} 100%{opacity:0;transform:scale(1.8) translateY(-30px)} }
+
+    /* Footer */
+    .footer {
+      padding: 22px 0 8px;
+      font-size: 18px;
+      animation: heartbeat 1.4s ease infinite;
+    }
+    @keyframes heartbeat {
+      0%,100% { transform: scale(1); }
+      14%     { transform: scale(1.3); }
+      28%     { transform: scale(1); }
+      42%     { transform: scale(1.2); }
+      56%     { transform: scale(1); }
+    }
+
+    /* Sparkles */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 10px;
+      z-index: 998;
+      animation: sparkleFade .8s ease forwards;
+    }
+    @keyframes sparkleFade {
+      0%   { opacity: 1; transform: scale(1) translateY(0); }
+      100% { opacity: 0; transform: scale(1.8) translateY(-30px); }
+    }
   </style>
 </head>
 <body>
+
   <div class="ui">
+
     <h1 class="site-title">KYLE'S LINKS</h1>
+
     <main class="cards" id="cards">
+
       <a class="card" href="https://dopl.work" target="_blank" rel="noopener">
         <div class="shimmer"></div>
         <div class="card-icon">🌐</div>
-        <div class="card-text"><div class="card-name">DOPPEL</div><div class="card-url">(dopl.work)</div></div>
+        <div class="card-text">
+          <div class="card-name">DOPPEL</div>
+          <div class="card-url">(dopl.work)</div>
+        </div>
         <span class="card-arrow">▶</span>
       </a>
+
       <a class="card" href="https://keepsake.it.com" target="_blank" rel="noopener">
         <div class="shimmer"></div>
         <div class="card-icon">🎁</div>
-        <div class="card-text"><div class="card-name">KEEPSAKE</div><div class="card-url">(keepsake.it.com)</div></div>
+        <div class="card-text">
+          <div class="card-name">KEEPSAKE</div>
+          <div class="card-url">(keepsake.it.com)</div>
+        </div>
         <span class="card-arrow">▶</span>
       </a>
+
       <a class="card" href="https://christcornerstone.org" target="_blank" rel="noopener">
         <div class="shimmer"></div>
         <div class="card-icon">⛪</div>
-        <div class="card-text"><div class="card-name">CORNERSTONE</div><div class="card-url">(ChristCornerstone.org)</div></div>
+        <div class="card-text">
+          <div class="card-name">CORNERSTONE</div>
+          <div class="card-url">(ChristCornerstone.org)</div>
+        </div>
         <span class="card-arrow">▶</span>
       </a>
+
       <a class="card" href="https://ebay.com" target="_blank" rel="noopener">
         <div class="shimmer"></div>
         <div class="card-icon">🛒</div>
-        <div class="card-text"><div class="card-name">THE VIRAL<br>FUNNEL SCOOP</div><div class="card-url">(eBay.com)</div></div>
+        <div class="card-text">
+          <div class="card-name">THE VIRAL<br>FUNNEL SCOOP</div>
+          <div class="card-url">(eBay.com)</div>
+        </div>
         <span class="card-arrow">▶</span>
       </a>
+
       <div class="contact-card" id="contact">
         <div class="contact-icon">✉️</div>
         <div class="contact-title">CONTACT ME</div>
@@ -237,26 +355,39 @@
         <a class="email-btn" href="mailto:kylevcrum@gmail.com">EMAIL ME</a>
         <div class="contact-email">kylevcrum@gmail.com</div>
       </div>
+
     </main>
+
     <div class="footer">💗</div>
   </div>
+
   <script>
+    // Make all cards visible — staggered delay on load, observer for below-fold
     const allCards = document.querySelectorAll('.card, .contact-card');
-    // Stagger cards in immediately on load
-    allCards.forEach((el, i) => {
-      setTimeout(() => el.classList.add('visible'), 150 + i * 100);
-    });
-    // Also observe for any below-fold cards
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+        if (entry.isIntersecting && !entry.target.classList.contains('visible')) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
       });
-    }, { threshold: 0.05 });
-    allCards.forEach(el => observer.observe(el));
+    }, { threshold: 0.05, rootMargin: '0px 0px 60px 0px' });
 
+    // Stagger cards in on page load
+    allCards.forEach((el, i) => {
+      setTimeout(() => {
+        el.classList.add('visible');
+        observer.unobserve(el);
+      }, 120 + i * 100);
+      observer.observe(el);
+    });
+
+    // Ripple on click
     document.querySelectorAll('.card').forEach(card => {
       card.addEventListener('click', function(e) {
-        const r = document.createElement('span'); r.className = 'ripple';
+        const r = document.createElement('span');
+        r.className = 'ripple';
         const rect = this.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height);
         r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
@@ -264,13 +395,16 @@
         r.addEventListener('animationend', () => r.remove());
       });
     });
+
+    // Sparkles on click
     const SPARKS = ['✦','✧','★','✨','⋆','·'];
     document.addEventListener('click', (e) => {
       for (let i = 0; i < 5; i++) {
-        const el = document.createElement('span'); el.className = 'sparkle';
+        const el = document.createElement('span');
+        el.className = 'sparkle';
         el.textContent = SPARKS[Math.floor(Math.random() * SPARKS.length)];
-        el.style.left = (e.clientX + (Math.random()-.5)*40) + 'px';
-        el.style.top  = (e.clientY + (Math.random()-.5)*40) + 'px';
+        el.style.left  = (e.clientX + (Math.random()-.5)*40) + 'px';
+        el.style.top   = (e.clientY + (Math.random()-.5)*40) + 'px';
         el.style.color = ['#ffe600','#ff2d78','#00f6ff','#b026ff'][Math.floor(Math.random()*4)];
         el.style.animationDelay = (i*60) + 'ms';
         document.body.appendChild(el);
