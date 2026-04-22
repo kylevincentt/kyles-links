@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kyle's Links</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --neon-pink:   #ff2d78;
+      --neon-purple: #b026ff;
+      --neon-yellow: #ffe600;
+      --neon-cyan:   #00f6ff;
+      --dark-bg:     #0d0118;
+      --card-bg:     #130228;
+      --grid-color:  rgba(160, 0, 255, 0.35);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Press Start 2P', monospace;
+      background: var(--dark-bg);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Scanlines overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,.08) 2px,
+        rgba(0,0,0,.08) 4px
+      );
+      z-index: 1000;
+    }
+
+    /* ────────────────────────────────────────────
+       HERO SCENE
+    ──────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      height: 320px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    /* Stars */
+    .stars {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(1px 1px at 15% 12%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 72% 8%,  #fff 100%, transparent),
+        radial-gradient(1px 1px at 40% 20%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 85% 18%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 28% 5%,  #fff 100%, transparent),
+        radial-gradient(1px 1px at 60% 14%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 92% 6%,  #fff 100%, transparent),
+        radial-gradient(1px 1px at 5%  22%, #fff 100%, transparent),
+        radial-gradient(2px 2px at 50% 3%,  #fff 100%, transparent),
+        radial-gradient(1px 1px at 33% 30%, rgba(255,255,255,.6) 100%, transparent);
+      animation: twinkle 4s ease-in-out infinite alternate;
+    }
+    @keyframes twinkle {
+      0%   { opacity: .7; }
+      50%  { opacity: 1;  }
+      100% { opacity: .5; }
+    }
+
+    /* Sky gradient */
+    .sky {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        #0a0020 0%,
+        #1a0040 30%,
+        #3d0066 55%,
+        #7a0080 70%,
+        #c03060 85%,
+        #e06040 100%
+      );
+    }
+
+    /* Sun */
+    .sun-wrap {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 160px;
+    }
+    .sun {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: linear-gradient(to bottom, #ff9040 0%, #ff5020 40%, #cc2010 100%);
+      box-shadow:
+        0 0 40px 20px rgba(255,100,20,.6),
+        0 0 80px 40px rgba(255,80,20,.3);
+      animation: sunPulse 3s ease-in-out infinite;
+      overflow: hidden;
+    }
+    @keyframes sunPulse {
+      0%,100% { box-shadow: 0 0 40px 20px rgba(255,100,20,.6), 0 0 80px 40px rgba(255,80,20,.3); }
+      50%      { box-shadow: 0 0 60px 30px rgba(255,140,40,.8), 0 0 100px 60px rgba(255,80,20,.4); }
+    }
+
+    /* Sun horizontal line stripes */
+    .sun-lines {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 55%;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(150,10,10,.85) 0px,
+        rgba(150,10,10,.85) 5px,
+        transparent         5px,
+        transparent         11px
+      );
+    }
+
+    /* Mountains */
+    .mountains {
+      position: absolute;
+      bottom: 98px;
+      left: 0; right: 0;
+      height: 90px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .mountain {
+      width: 0; height: 0;
+    }
+    .mountain.left {
+      border-left:  120px solid transparent;
+      border-right: 100px solid transparent;
+      border-bottom: 90px solid #1a003a;
+      margin-left: -30px;
+    }
+    .mountain.right {
+      border-left:  100px solid transparent;
+      border-right: 120px solid transparent;
+      border-bottom: 90px solid #1a003a;
+      margin-right: -30px;
+    }
+    .mountain.left::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -80px;
+      width: 0; height: 0;
+      border-left:  80px solid transparent;
+      border-right: 80px solid transparent;
+      border-bottom: 60px solid #250050;
+    }
+
+    /* Retro grid floor */
+    .grid-floor {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 105px;
+      perspective: 200px;
+    }
+    .grid-inner {
+      position: absolute;
+      bottom: 0; left: -50%; right: -50%;
+      height: 100%;
+      background-image:
+        linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: rotateX(70deg);
+      transform-origin: bottom center;
+      animation: gridScroll 3s linear infinite;
+    }
+    @keyframes gridScroll {
+      0%   { background-position: 0 0; }
+      100% { background-position: 0 40px; }
+    }
+
+    /* ── Title ── */
+    .site-title {
+      font-size: clamp(22px, 6vw, 34px);
+      color: var(--neon-yellow);
+      text-align: center;
+      letter-spacing: 3px;
+      text-shadow:
+        0 0 10px rgba(255,230,0,.8),
+        0 0 30px rgba(255,200,0,.5),
+        3px 3px 0 rgba(200,100,0,.6);
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      z-index: 10;
+      animation: titleFlicker 6s ease-in-out infinite;
+    }
+    @keyframes titleFlicker {
+      0%,93%,97%,100% { opacity: 1; }
+      95%             { opacity: .85; }
+    }
+
+    /* ────────────────────────────────────────────
+       CARDS SECTION
+    ──────────────────────────────────────────── */
+    .cards {
+      width: 100%;
+      max-width: 480px;
+      padding: 10px 16px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 1;
+    }
+
+    /* Link cards */
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--card-bg);
+      border: 2px solid var(--neon-pink);
+      border-radius: 6px;
+      padding: 14px 16px;
+      text-decoration: none;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+
+      /* Scroll-in animation start state */
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .card.visible {
+      animation: slideUp .5s ease forwards;
+    }
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Neon corner accents */
+    .card::before,
+    .card::after {
+      content: '';
+      position: absolute;
+      width: 8px; height: 8px;
+      border-color: var(--neon-yellow);
+      border-style: solid;
+    }
+    .card::before {
+      top: -2px; left: -2px;
+      border-width: 2px 0 0 2px;
+    }
+    .card::after {
+      bottom: -2px; right: -2px;
+      border-width: 0 2px 2px 0;
+    }
+
+    /* Hover glow */
+    .card:hover {
+      transform: translateY(-3px) scale(1.015);
+      border-color: var(--neon-cyan);
+      box-shadow:
+        0 0 12px rgba(0,246,255,.5),
+        0 0 30px rgba(0,246,255,.2),
+        inset 0 0 20px rgba(0,246,255,.05);
+    }
+
+    /* Shimmer sweep on hover */
+    .card .shimmer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(255,255,255,.08) 50%,
+        transparent 70%
+      );
+      transform: translateX(-100%);
+      transition: transform .4s ease;
+      pointer-events: none;
+    }
+    .card:hover .shimmer { transform: translateX(100%); }
+
+    /* Ripple click effect */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(0,246,255,.35);
+      transform: scale(0);
+      animation: rippleAnim .5s linear;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* Icon box */
+    .card-icon {
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+      background: #1e003a;
+      border: 2px solid var(--neon-purple);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      image-rendering: pixelated;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 60%);
+    }
+
+    /* Text */
+    .card-text { flex: 1; }
+    .card-name {
+      font-size: 13px;
+      color: var(--neon-yellow);
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(255,230,0,.5);
+      line-height: 1.4;
+    }
+    .card-url {
+      font-size: 8px;
+      color: rgba(255,255,255,.5);
+      margin-top: 5px;
+      letter-spacing: .5px;
+    }
+
+    /* Arrow */
+    .card-arrow {
+      font-size: 14px;
+      color: var(--neon-pink);
+      text-shadow: 0 0 8px var(--neon-pink);
+      animation: arrowBlink 1.5s steps(1) infinite;
+    }
+    @keyframes arrowBlink {
+      0%,49% { opacity: 1; }
+      50%,100%{ opacity: .3; }
+    }
+
+    /* ────────────────────────────────────────────
+       CONTACT CARD (special)
+    ──────────────────────────────────────────── */
+    .contact-card {
+      background: var(--card-bg);
+      border: 2px solid var(--neon-pink);
+      border-radius: 6px;
+      padding: 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+    }
+    .contact-card::before,
+    .contact-card::after {
+      content: '';
+      position: absolute;
+      width: 8px; height: 8px;
+      border-color: var(--neon-yellow);
+      border-style: solid;
+    }
+    .contact-card::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+    .contact-card::after  { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+    .contact-card.visible { animation: slideUp .5s ease forwards; }
+
+    .contact-icon { font-size: 28px; }
+    .contact-title {
+      font-size: 13px;
+      color: var(--neon-yellow);
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(255,230,0,.5);
+    }
+    .contact-sub {
+      font-size: 8px;
+      color: rgba(255,255,255,.6);
+      text-align: center;
+      line-height: 1.8;
+      letter-spacing: .5px;
+    }
+
+    .email-btn {
+      display: inline-block;
+      background: var(--neon-pink);
+      color: var(--dark-bg);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 10px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      letter-spacing: 1px;
+      border: none;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease;
+      box-shadow: 0 0 12px rgba(255,45,120,.6);
+      margin-top: 4px;
+    }
+    .email-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255,45,120,.9);
+    }
+    .email-btn:active { transform: scale(.97); }
+
+    .contact-email {
+      font-size: 7px;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .5px;
+    }
+
+    /* ── Footer heart ── */
+    .footer {
+      padding: 20px 0 30px;
+      font-size: 18px;
+      animation: heartbeat 1.4s ease infinite;
+    }
+    @keyframes heartbeat {
+      0%,100% { transform: scale(1); }
+      14%      { transform: scale(1.3); }
+      28%      { transform: scale(1); }
+      42%      { transform: scale(1.2); }
+      56%      { transform: scale(1); }
+    }
+
+    /* ── Floating sparkles ── */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      font-size: 10px;
+      z-index: 999;
+      animation: sparkleFade .8s ease forwards;
+    }
+    @keyframes sparkleFade {
+      0%   { opacity: 1; transform: scale(1) translateY(0); }
+      100% { opacity: 0; transform: scale(1.8) translateY(-30px); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 400px) {
+      .card-name  { font-size: 11px; }
+      .hero       { height: 270px; }
+      .sun-wrap   { bottom: 80px; width: 130px; height: 130px; }
+      .sun        { width: 130px; height: 130px; }
+      .grid-floor { height: 85px; }
+      .mountains  { bottom: 83px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Hero ── -->
+  <div class="hero">
+    <div class="sky"></div>
+    <div class="stars"></div>
+    <h1 class="site-title">KYLE'S LINKS</h1>
+    <div class="sun-wrap">
+      <div class="sun">
+        <div class="sun-lines"></div>
+      </div>
+    </div>
+    <div class="mountains">
+      <div class="mountain left"></div>
+      <div class="mountain right"></div>
+    </div>
+    <div class="grid-floor">
+      <div class="grid-inner"></div>
+    </div>
+  </div>
+
+  <!-- ── Link Cards ── -->
+  <main class="cards" id="cards">
+
+    <a class="card" href="https://dopl.work" target="_blank" rel="noopener">
+      <div class="shimmer"></div>
+      <div class="card-icon">🌐</div>
+      <div class="card-text">
+        <div class="card-name">DOPPEL</div>
+        <div class="card-url">(dopl.work)</div>
+      </div>
+      <span class="card-arrow">▶</span>
+    </a>
+
+    <a class="card" href="https://keepsake.it.com" target="_blank" rel="noopener">
+      <div class="shimmer"></div>
+      <div class="card-icon">🎁</div>
+      <div class="card-text">
+        <div class="card-name">KEEPSAKE</div>
+        <div class="card-url">(keepsake.it.com)</div>
+      </div>
+      <span class="card-arrow">▶</span>
+    </a>
+
+    <a class="card" href="https://christcornerstone.org" target="_blank" rel="noopener">
+      <div class="shimmer"></div>
+      <div class="card-icon">⛪</div>
+      <div class="card-text">
+        <div class="card-name">CORNERSTONE</div>
+        <div class="card-url">(ChristCornerstone.org)</div>
+      </div>
+      <span class="card-arrow">▶</span>
+    </a>
+
+    <a class="card" href="https://ebay.com" target="_blank" rel="noopener">
+      <div class="shimmer"></div>
+      <div class="card-icon">🛒</div>
+      <div class="card-text">
+        <div class="card-name">THE VIRAL<br>FUNNEL SCOOP</div>
+        <div class="card-url">(eBay.com)</div>
+      </div>
+      <span class="card-arrow">▶</span>
+    </a>
+
+    <!-- Contact card -->
+    <div class="contact-card" id="contact">
+      <div class="contact-icon">✉️</div>
+      <div class="contact-title">CONTACT ME</div>
+      <div class="contact-sub">Have a question or want<br>to connect?</div>
+      <a class="email-btn" href="mailto:kylevcrum@gmail.com">EMAIL ME</a>
+      <div class="contact-email">kylevcrum@gmail.com</div>
+    </div>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <div class="footer">💗</div>
+
+  <script>
+    // ── Scroll-in animation via IntersectionObserver ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const delay = el.dataset.delay || 0;
+          setTimeout(() => el.classList.add('visible'), delay);
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.card, .contact-card').forEach((el, i) => {
+      el.dataset.delay = i * 80;
+      observer.observe(el);
+    });
+
+    // ── Ripple on click ──
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: ${e.clientX - rect.left - size / 2}px;
+          top:  ${e.clientY - rect.top  - size / 2}px;
+        `;
+        this.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+      });
+    });
+
+    // ── Sparkles on click anywhere ──
+    const SPARKS = ['✦','✧','★','✨','⋆','·'];
+    document.addEventListener('click', (e) => {
+      for (let i = 0; i < 5; i++) {
+        const el = document.createElement('span');
+        el.className = 'sparkle';
+        el.textContent = SPARKS[Math.floor(Math.random() * SPARKS.length)];
+        el.style.left = (e.clientX + (Math.random() - .5) * 40) + 'px';
+        el.style.top  = (e.clientY + (Math.random() - .5) * 40) + 'px';
+        el.style.color = ['#ffe600','#ff2d78','#00f6ff','#b026ff'][Math.floor(Math.random()*4)];
+        el.style.animationDelay = (i * 60) + 'ms';
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }
+    });
+  </script>
+</body>
+</html>
