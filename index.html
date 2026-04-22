@@ -1,1 +1,282 @@
-/sessions/festive-vigilant-bell/index_embed.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kyle's Links</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --neon-pink:   #ff2d78;
+      --neon-purple: #b026ff;
+      --neon-yellow: #ffe600;
+      --neon-cyan:   #00f6ff;
+      --dark-bg:     #0d0118;
+      --card-bg:     rgba(8, 0, 20, 0.82);
+    }
+
+    html { min-height: 100%; }
+
+    body {
+      font-family: 'Press Start 2P', monospace;
+      color: #fff;
+      min-height: 100%;
+      overflow-x: hidden;
+      background-image: url('bg.jpg');
+      background-size: 100% auto;
+      background-repeat: no-repeat;
+      background-position: top center;
+      background-color: #04001a;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,.06) 3px, rgba(0,0,0,.06) 4px
+      );
+      z-index: 999;
+    }
+
+    .ui {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 50px;
+      padding-top: calc(42vw);
+    }
+
+    .site-title {
+      font-size: clamp(20px, 6vw, 38px);
+      color: var(--neon-yellow);
+      text-align: center;
+      letter-spacing: 4px;
+      text-shadow:
+        0 0 10px rgba(255,230,0,.95),
+        0 0 28px rgba(255,200,0,.7),
+        0 0 55px rgba(255,180,0,.4),
+        4px 4px 0 rgba(160,70,0,.85);
+      white-space: nowrap;
+      animation: titleFlicker 6s ease-in-out infinite;
+      margin-bottom: clamp(14px, 3vw, 24px);
+    }
+    @keyframes titleFlicker {
+      0%,91%,95%,100% { opacity: 1; }
+      93% { opacity: .78; }
+    }
+
+    .cards {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--card-bg);
+      border: 2px solid var(--neon-pink);
+      border-radius: 5px;
+      padding: 12px 14px;
+      text-decoration: none;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .4s ease, transform .4s ease;
+    }
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 8px; height: 8px;
+      border-color: var(--neon-purple);
+      border-style: solid;
+    }
+    .card::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+    .card::after  { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card.visible:hover {
+      transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+      transform: translateY(-3px) scale(1.016);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 14px rgba(0,246,255,.5), 0 0 34px rgba(0,246,255,.18);
+    }
+    .shimmer {
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.08) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform .38s ease;
+      pointer-events: none;
+    }
+    .card:hover .shimmer { transform: translateX(100%); }
+    .ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(0,246,255,.32);
+      transform: scale(0);
+      animation: rippleAnim .5s linear;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+    .card-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: rgba(20,0,45,.9);
+      border: 2px solid var(--neon-purple);
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      position: relative; overflow: hidden;
+    }
+    .card-icon::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 60%);
+    }
+    .card-text { flex: 1; }
+    .card-name {
+      font-size: clamp(10px, 2.8vw, 13px);
+      color: var(--neon-yellow); letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(255,230,0,.5); line-height: 1.5;
+    }
+    .card-url { font-size: 8px; color: rgba(255,255,255,.5); margin-top: 4px; letter-spacing: .4px; }
+    .card-arrow {
+      font-size: 14px; color: var(--neon-pink);
+      text-shadow: 0 0 8px var(--neon-pink);
+      animation: arrowBlink 1.4s steps(1) infinite;
+    }
+    @keyframes arrowBlink { 0%,49%{opacity:1} 50%,100%{opacity:.2} }
+
+    .contact-card {
+      background: var(--card-bg); border: 2px solid var(--neon-pink);
+      border-radius: 5px; padding: 18px 14px 14px;
+      display: flex; flex-direction: column; align-items: center; gap: 9px;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity .4s ease, transform .4s ease;
+      position: relative;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    .contact-card::before, .contact-card::after {
+      content: ''; position: absolute;
+      width: 8px; height: 8px; border-color: var(--neon-purple); border-style: solid;
+    }
+    .contact-card::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+    .contact-card::after  { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+    .contact-card.visible { opacity: 1; transform: translateY(0); }
+    .contact-icon { font-size: 26px; }
+    .contact-title { font-size: 13px; color: var(--neon-yellow); letter-spacing: 1px; text-shadow: 0 0 8px rgba(255,230,0,.5); }
+    .contact-sub { font-size: 8px; color: rgba(255,255,255,.6); text-align: center; line-height: 1.9; letter-spacing: .5px; }
+    .email-btn {
+      display: inline-block; background: var(--neon-pink); color: #0d0118;
+      font-family: 'Press Start 2P', monospace; font-size: 10px;
+      padding: 10px 22px; border-radius: 4px; text-decoration: none;
+      letter-spacing: 1px; border: none; cursor: pointer;
+      transition: transform .14s ease, box-shadow .14s ease;
+      box-shadow: 0 0 12px rgba(255,45,120,.6); margin-top: 2px;
+    }
+    .email-btn:hover { transform: scale(1.05); box-shadow: 0 0 22px rgba(255,45,120,1); }
+    .email-btn:active { transform: scale(.97); }
+    .contact-email { font-size: 7px; color: rgba(255,255,255,.38); letter-spacing: .5px; }
+    .footer { padding: 22px 0 8px; font-size: 18px; animation: heartbeat 1.4s ease infinite; }
+    @keyframes heartbeat {
+      0%,100%{transform:scale(1)} 14%{transform:scale(1.3)}
+      28%{transform:scale(1)} 42%{transform:scale(1.2)} 56%{transform:scale(1)}
+    }
+    .sparkle { position:fixed; pointer-events:none; font-size:10px; z-index:998; animation:sparkleFade .8s ease forwards; }
+    @keyframes sparkleFade { 0%{opacity:1;transform:scale(1) translateY(0)} 100%{opacity:0;transform:scale(1.8) translateY(-30px)} }
+  </style>
+</head>
+<body>
+  <div class="ui">
+    <h1 class="site-title">KYLE'S LINKS</h1>
+    <main class="cards" id="cards">
+      <a class="card" href="https://dopl.work" target="_blank" rel="noopener">
+        <div class="shimmer"></div>
+        <div class="card-icon">🌐</div>
+        <div class="card-text"><div class="card-name">DOPPEL</div><div class="card-url">(dopl.work)</div></div>
+        <span class="card-arrow">▶</span>
+      </a>
+      <a class="card" href="https://keepsake.it.com" target="_blank" rel="noopener">
+        <div class="shimmer"></div>
+        <div class="card-icon">🎁</div>
+        <div class="card-text"><div class="card-name">KEEPSAKE</div><div class="card-url">(keepsake.it.com)</div></div>
+        <span class="card-arrow">▶</span>
+      </a>
+      <a class="card" href="https://christcornerstone.org" target="_blank" rel="noopener">
+        <div class="shimmer"></div>
+        <div class="card-icon">⛪</div>
+        <div class="card-text"><div class="card-name">CORNERSTONE</div><div class="card-url">(ChristCornerstone.org)</div></div>
+        <span class="card-arrow">▶</span>
+      </a>
+      <a class="card" href="https://ebay.com" target="_blank" rel="noopener">
+        <div class="shimmer"></div>
+        <div class="card-icon">🛒</div>
+        <div class="card-text"><div class="card-name">THE VIRAL<br>FUNNEL SCOOP</div><div class="card-url">(eBay.com)</div></div>
+        <span class="card-arrow">▶</span>
+      </a>
+      <div class="contact-card" id="contact">
+        <div class="contact-icon">✉️</div>
+        <div class="contact-title">CONTACT ME</div>
+        <div class="contact-sub">Have a question or want<br>to connect?</div>
+        <a class="email-btn" href="mailto:kylevcrum@gmail.com">EMAIL ME</a>
+        <div class="contact-email">kylevcrum@gmail.com</div>
+      </div>
+    </main>
+    <div class="footer">💗</div>
+  </div>
+  <script>
+    const allCards = document.querySelectorAll('.card, .contact-card');
+    // Stagger cards in immediately on load
+    allCards.forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), 150 + i * 100);
+    });
+    // Also observe for any below-fold cards
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+      });
+    }, { threshold: 0.05 });
+    allCards.forEach(el => observer.observe(el));
+
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        const r = document.createElement('span'); r.className = 'ripple';
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+        this.appendChild(r);
+        r.addEventListener('animationend', () => r.remove());
+      });
+    });
+    const SPARKS = ['✦','✧','★','✨','⋆','·'];
+    document.addEventListener('click', (e) => {
+      for (let i = 0; i < 5; i++) {
+        const el = document.createElement('span'); el.className = 'sparkle';
+        el.textContent = SPARKS[Math.floor(Math.random() * SPARKS.length)];
+        el.style.left = (e.clientX + (Math.random()-.5)*40) + 'px';
+        el.style.top  = (e.clientY + (Math.random()-.5)*40) + 'px';
+        el.style.color = ['#ffe600','#ff2d78','#00f6ff','#b026ff'][Math.floor(Math.random()*4)];
+        el.style.animationDelay = (i*60) + 'ms';
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }
+    });
+  </script>
+</body>
+</html>
