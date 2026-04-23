@@ -37,11 +37,19 @@
       }
     }
 
+    /* Clip wrapper — contains overflow so scoreboard is hidden off right edge on iOS */
+    #canvas-clip {
+      overflow: hidden;
+      /* width / height set by resizeCanvas() in JS for portrait; auto otherwise */
+      flex-shrink: 0;
+    }
+
     canvas#canvas {
       /* Never display:none — WebGL needs the canvas visible to initialize.
          The #loader overlay (z-index:100) covers it during loading. */
       image-rendering: pixelated;
       image-rendering: crisp-edges;
+      display: block; /* removes inline baseline gap */
     }
 
     /* ── Scroll layer (captures scroll, passes clicks through when gaming) ── */
@@ -261,29 +269,7 @@
       image-rendering: crisp-edges;
     }
 
-    /* ── Launch hint (portrait mobile, game-mode, before ball launch) ───────── */
-    #launch-hint {
-      display: none;
-      position: fixed;
-      bottom: 40px;               /* lower portion of machine (bottom half of viewport) */
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 35;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      animation: nudge 2s ease-in-out infinite;
-    }
-    #launch-hint.show { opacity: 1; }
-    @media (max-width: 768px) and (orientation: portrait) {
-      #launch-hint { display: block; }
-    }
+    /* #launch-hint removed — right-tap-to-launch replaces scroll-to-launch */
 
     /* ── Loading screen ─────────────────────────────────────────────────────── */
     #loader {
@@ -343,7 +329,10 @@
 
 <!-- Game lives here -->
 <div id="game-wrapper">
-  <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+  <!-- canvas-clip: overflow:hidden wrapper — clips scoreboard off right edge on iOS portrait -->
+  <div id="canvas-clip">
+    <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+  </div>
 </div>
 
 <!-- Links overlay -->
@@ -388,10 +377,6 @@
     </a>
 
   </div>
-  <div class="scroll-hint">
-    <span>Scroll down to play</span>
-    <span class="arr">↓</span>
-  </div>
 </div>
 
 <!-- Paddle zones (visible only in game mode) -->
@@ -400,9 +385,6 @@
 
 <!-- Back to links pill -->
 <div id="back-pill" onclick="exitGame()">&larr; Back to Links</div>
-
-<!-- Launch hint: mobile portrait only, shown in game mode before ball launch -->
-<div id="launch-hint">&darr; Scroll to launch &darr;</div>
 
 <!-- Mobile score strip: mirrors the game's scoreboard below the table (portrait only) -->
 <div id="mobile-score">
@@ -441,7 +423,6 @@ var backPill    = document.getElementById('back-pill');
 var loadFill    = document.getElementById('load-fill');
 var loadSub     = document.getElementById('load-sub');
 var loader      = document.getElementById('loader');
-var launchHint  = document.getElementById('launch-hint');
 var mobileScore = document.getElementById('mobile-score');
 var scoreMirror = document.getElementById('score-mirror');
 var scoreCtx    = scoreMirror ? scoreMirror.getContext('2d') : null;
@@ -532,6 +513,7 @@ function resizeCanvas() {
   if (!c || !c.width || !c.height) return;
   var nw = c.width, nh = c.height;
   var gw = document.getElementById('game-wrapper');
+  var clip = document.getElementById('canvas-clip');
 
   if (isMobilePortrait()) {
     // Scale so the pinball TABLE (left TABLE_FRAC of canvas) = screen width.
@@ -543,9 +525,12 @@ function resizeCanvas() {
     c.style.width  = machineW + 'px';
     c.style.height = machineH + 'px';
 
-    // Clip off the right (scoreboard) section so only the table is visible.
-    var clipRight = machineW - window.innerWidth;
-    c.style.clipPath = clipRight > 0 ? 'inset(0 ' + clipRight + 'px 0 0)' : '';
+    // Clip off the right (scoreboard) by constraining the wrapper div width.
+    // overflow:hidden on the wrapper is more reliable than clip-path on iOS Safari.
+    if (clip) {
+      clip.style.width  = window.innerWidth + 'px';
+      clip.style.height = machineH + 'px';
+    }
 
     // Score strip = remaining space above the machine (viewport - machine height).
     // The strip shows the bottom half of the scoreboard at natural (machine) scale.
@@ -568,7 +553,7 @@ function resizeCanvas() {
     var scale = Math.min(window.innerWidth / nw, window.innerHeight / nh);
     c.style.width  = Math.round(nw * scale) + 'px';
     c.style.height = Math.round(nh * scale) + 'px';
-    c.style.clipPath = '';
+    if (clip) { clip.style.width = ''; clip.style.height = ''; }
     if (mobileScore) mobileScore.style.height = '';
     if (gw) gw.style.paddingTop = '';
   }
