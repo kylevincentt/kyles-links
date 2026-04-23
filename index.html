@@ -27,13 +27,13 @@
     }
 
     /* Portrait mobile: left-align so canvas overflows right (scoreboard hidden);
-       vertically center the table in the space above the score strip */
+       bottom-align the table so base touches viewport bottom */
     @media (max-width: 768px) and (orientation: portrait) {
       #game-wrapper {
-        align-items: center;
+        align-items: flex-end;
         justify-content: flex-start;
         overflow: hidden;
-        padding-bottom: 54px; /* reserve space for mobile score strip */
+        padding-top: 80px; /* reserve space for score strip above machine */
       }
     }
 
@@ -204,15 +204,12 @@
       text-transform: uppercase;
     }
 
-    /* On mobile portrait: raise paddles above the score strip */
-    @media (max-width: 768px) and (orientation: portrait) {
-      .paddle { bottom: 54px; }
-    }
+    /* On mobile portrait: paddles sit at the very bottom (default bottom: 0) */
 
     /* ── Back pill ──────────────────────────────────────────────────────────── */
     #back-pill {
       position: fixed;
-      top: 14px;
+      top: 14px;    /* on desktop sits near top; on mobile lands in score strip */
       left: 50%;
       transform: translateX(-50%);
       z-index: 35;
@@ -235,16 +232,16 @@
     #back-pill.show { opacity: 1; pointer-events: auto; }
     #back-pill:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
 
-    /* ── Mobile score strip (portrait only) ────────────────────────────────── */
+    /* ── Mobile score strip (portrait only, sits above machine) ─────────────── */
     #mobile-score {
       display: none;               /* hidden on desktop / landscape */
       position: fixed;
-      bottom: 0;
+      top: 0;
       left: 0;
       right: 0;
-      height: 54px;
+      height: 80px;
       background: rgba(4, 0, 14, 0.96);
-      border-top: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       z-index: 28;
       align-items: stretch;
       overflow: hidden;
@@ -266,7 +263,7 @@
     #launch-hint {
       display: none;
       position: fixed;
-      bottom: 66px;               /* sits just above score strip */
+      bottom: 36px;               /* lower portion of machine, above paddles */
       left: 50%;
       transform: translateX(-50%);
       z-index: 35;
@@ -447,6 +444,20 @@ var mobileScore = document.getElementById('mobile-score');
 var scoreMirror = document.getElementById('score-mirror');
 var scoreCtx    = scoreMirror ? scoreMirror.getContext('2d') : null;
 var scoreRaf    = null;
+
+// ─── Patch canvas.getContext to request preserveDrawingBuffer ────────────────
+// Without this, WebGL clears its framebuffer after each frame and drawImage()
+// on the WebGL canvas returns black. Must happen before Emscripten calls getContext.
+(function() {
+  var c = document.getElementById('canvas');
+  var orig = c.getContext.bind(c);
+  c.getContext = function(type, attrs) {
+    if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
+      attrs = Object.assign({}, attrs || {}, { preserveDrawingBuffer: true });
+    }
+    return orig(type, attrs);
+  };
+})();
 
 // ─── Emscripten Module (must exist before SpaceCadetPinball.js loads) ────────
 var JSDELIVR_BASE = 'https://cdn.jsdelivr.net/gh/alula/SpaceCadetPinball@gh-pages/';
@@ -743,9 +754,20 @@ cv.addEventListener('mousedown', function(e) {
 cv.addEventListener('mouseup',   function() { LUp(); RUp(); });
 cv.addEventListener('touchstart', function(e) {
   e.preventDefault();
-  var mid = cv.getBoundingClientRect().left + cv.getBoundingClientRect().width / 2;
+  var rect = cv.getBoundingClientRect();
+  var leftZone  = rect.left + rect.width * 0.30;
+  var rightZone = rect.left + rect.width * 0.70;
   for (var i = 0; i < e.changedTouches.length; i++) {
-    (e.changedTouches[i].clientX < mid) ? LDn() : RDn();
+    var x = e.changedTouches[i].clientX;
+    if (x < leftZone) {
+      LDn();
+    } else if (x > rightZone) {
+      RDn();
+    } else {
+      // Center zone: pull and release plunger — launches any ball (1st, 2nd, …)
+      fireKey('keydown', 32, ' ', 'Space');
+      setTimeout(function() { fireKey('keyup', 32, ' ', 'Space'); }, 750);
+    }
   }
 }, { passive: false });
 cv.addEventListener('touchend', function(e) {
