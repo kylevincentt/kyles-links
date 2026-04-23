@@ -534,44 +534,32 @@ function resizeCanvas() {
   var gw = document.getElementById('game-wrapper');
 
   if (isMobilePortrait()) {
-    // Split the viewport exactly in half:
-    //   Top half  → score strip (canvas mirror of the scoreboard section)
-    //   Bottom half → pinball machine (table section fills phone width)
-    //
-    // Both halves use the SAME pixel scale so proportions are consistent.
-    // scale is constrained by whichever is tighter: width or half-height.
-    var halfH      = Math.floor(window.innerHeight / 2);
-    var scaleW     = window.innerWidth / (nw * TABLE_FRAC); // table fills width
-    var scaleH     = halfH / nh;                            // canvas fits half-height
-    var scale      = Math.min(scaleW, scaleH);
-    var machineH   = Math.round(nh * scale);
-    var machineW   = Math.round(nw * scale);
+    // Scale so the pinball TABLE (left TABLE_FRAC of canvas) = screen width.
+    // No height constraint — the table always fills the phone width exactly.
+    var scale    = window.innerWidth / (nw * TABLE_FRAC);
+    var machineH = Math.round(nh * scale);
+    var machineW = Math.round(nw * scale);
 
     c.style.width  = machineW + 'px';
     c.style.height = machineH + 'px';
 
-    // Clip the canvas so only the table portion (left TABLE_FRAC) is visible.
-    // The scoreboard section overflows to the right and is hidden by clip-path.
-    var scoreboardW = machineW - window.innerWidth;
-    if (scoreboardW > 0) {
-      c.style.clipPath = 'inset(0 ' + scoreboardW + 'px 0 0)';
-    } else {
-      c.style.clipPath = '';
-    }
+    // Clip off the right (scoreboard) section so only the table is visible.
+    var clipRight = machineW - window.innerWidth;
+    c.style.clipPath = clipRight > 0 ? 'inset(0 ' + clipRight + 'px 0 0)' : '';
 
-    // Score strip: same height as machine, full viewport width
-    if (mobileScore) {
-      mobileScore.style.height = machineH + 'px';
-    }
-    // Push game-wrapper down by the score strip height
-    if (gw) gw.style.paddingTop = machineH + 'px';
+    // Score strip = remaining space above the machine (viewport - machine height).
+    // The strip shows the bottom half of the scoreboard at natural (machine) scale.
+    var stripH  = Math.max(0, window.innerHeight - machineH);
+    var mirrorW = Math.round(nw * (1 - TABLE_FRAC) * scale);
+    // Natural height of the bottom half of the scoreboard at machine scale:
+    var mirrorH = Math.min(Math.round(nh * scale / 2), stripH);
 
-    // Size the score mirror canvas (right scoreboard portion at same scale)
+    if (mobileScore) mobileScore.style.height = stripH + 'px';
+    if (gw)          gw.style.paddingTop       = stripH + 'px';
+
     if (scoreMirror) {
-      var mirrorW = Math.round(nw * (1 - TABLE_FRAC) * scale);
-      var mirrorH = machineH;
-      scoreMirror.width  = mirrorW;
-      scoreMirror.height = mirrorH;
+      scoreMirror.width        = mirrorW;
+      scoreMirror.height       = mirrorH;
       scoreMirror.style.width  = mirrorW + 'px';
       scoreMirror.style.height = mirrorH + 'px';
     }
@@ -606,20 +594,27 @@ function startScoreMirror() {
       return;
     }
 
-    // Source region: right (1 - TABLE_FRAC) of game canvas, BOTTOM HALF only
-    var srcX  = Math.floor(gameCanvas.width * TABLE_FRAC);
-    var srcW  = gameCanvas.width - srcX;
-    var srcY  = Math.floor(gameCanvas.height / 2);  // skip top half (title art)
-    var srcH  = gameCanvas.height - srcY;           // bottom half of scoreboard
+    // Source: right scoreboard column, bottom half only (hide title art at top)
+    var srcX = Math.floor(gameCanvas.width * TABLE_FRAC);
+    var srcW = gameCanvas.width - srcX;
+    var srcY = Math.floor(gameCanvas.height / 2);  // start at vertical midpoint
+    var srcH = gameCanvas.height - srcY;            // bottom half in source pixels
 
-    // Derive display size from canvas CSS height (set by resizeCanvas)
+    // Display at the same scale as the machine — no stretching
     var cssH = parseFloat(gameCanvas.style.height);
     if (!cssH) { scoreRaf = requestAnimationFrame(mirrorLoop); return; }
-    var scale  = cssH / gameCanvas.height;
-    var dispW  = Math.round(srcW * scale);
-    var dispH  = Math.round(gameCanvas.height * scale);  // fill full strip height
+    var scale = cssH / gameCanvas.height;
+    var dispW = Math.round(srcW * scale);
+    var dispH = Math.round(srcH * scale);  // natural scale, not stretched
 
-    // Resize scoreMirror canvas pixels to match display size
+    // Cap to the mirror canvas size (set by resizeCanvas to fit the strip)
+    if (scoreMirror.height > 0 && dispH > scoreMirror.height) {
+      // Strip is shorter than half-scoreboard — show the bottommost pixels
+      dispH = scoreMirror.height;
+      srcH  = Math.round(dispH / scale);
+      srcY  = gameCanvas.height - srcH;  // take from the very bottom
+    }
+
     if (scoreMirror.width  !== dispW) scoreMirror.width  = dispW;
     if (scoreMirror.height !== dispH) scoreMirror.height = dispH;
 
@@ -627,8 +622,8 @@ function startScoreMirror() {
       scoreCtx.clearRect(0, 0, dispW, dispH);
       scoreCtx.drawImage(
         gameCanvas,
-        srcX, srcY, srcW, srcH,  // right scoreboard section, bottom half only
-        0,    0,    dispW, dispH  // stretched to fill full strip height
+        srcX, srcY, srcW, srcH,  // bottom portion of scoreboard column
+        0,    0,    dispW, dispH  // same scale as machine
       );
     } catch (e) {
       // drawImage fails when WebGL context loses the drawing buffer.
