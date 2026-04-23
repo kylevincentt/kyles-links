@@ -15,7 +15,7 @@
       width: 100vw;
     }
 
-    /* ââ Game canvas wrapper âââââââââââââââââââââââââââââââââââââââââââââââââ */
+    /* ── Game canvas wrapper ───────────────────────────────────────────────── */
     #game-wrapper {
       position: fixed;
       inset: 0;
@@ -26,23 +26,25 @@
       z-index: 1;
     }
 
-    /* Portrait mobile: anchor top-left so canvas overflows right (scoreboard hidden) */
+    /* Portrait mobile: left-align so canvas overflows right (scoreboard hidden);
+       vertically center the table in the space above the score strip */
     @media (max-width: 768px) and (orientation: portrait) {
       #game-wrapper {
-        align-items: flex-start;
+        align-items: center;
         justify-content: flex-start;
         overflow: hidden;
+        padding-bottom: 54px; /* reserve space for mobile score strip */
       }
     }
 
     canvas#canvas {
-      /* Never display:none â WebGL needs the canvas visible to initialize.
+      /* Never display:none — WebGL needs the canvas visible to initialize.
          The #loader overlay (z-index:100) covers it during loading. */
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
 
-    /* ââ Scroll layer (captures scroll, passes clicks through when gaming) ââ */
+    /* ── Scroll layer (captures scroll, passes clicks through when gaming) ── */
     #scroll-layer {
       position: fixed;
       inset: 0;
@@ -53,7 +55,7 @@
     }
     #scroll-spacer { height: 300vh; }
 
-    /* ââ Links overlay âââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+    /* ── Links overlay ─────────────────────────────────────────────────────── */
     #overlay {
       position: fixed;
       inset: 0;
@@ -157,7 +159,7 @@
       50%       { transform: translateY(6px); opacity: 0.7; }
     }
 
-    /* ââ Paddle tap zones (game mode) âââââââââââââââââââââââââââââââââââââââ */
+    /* ── Paddle tap zones (game mode) ─────────────────────────────────────── */
     .paddle {
       position: fixed;
       bottom: 0;
@@ -207,7 +209,7 @@
       .paddle { bottom: 54px; }
     }
 
-    /* ââ Back pill ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+    /* ── Back pill ──────────────────────────────────────────────────────────── */
     #back-pill {
       position: fixed;
       top: 14px;
@@ -233,7 +235,7 @@
     #back-pill.show { opacity: 1; pointer-events: auto; }
     #back-pill:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
 
-    /* ââ Mobile score strip (portrait only) ââââââââââââââââââââââââââââââââââ */
+    /* ── Mobile score strip (portrait only) ────────────────────────────────── */
     #mobile-score {
       display: none;               /* hidden on desktop / landscape */
       position: fixed;
@@ -260,7 +262,7 @@
       height: 100%;
     }
 
-    /* ââ Launch hint (portrait mobile, game-mode, before ball launch) âââââââââ */
+    /* ── Launch hint (portrait mobile, game-mode, before ball launch) ───────── */
     #launch-hint {
       display: none;
       position: fixed;
@@ -284,7 +286,7 @@
       #launch-hint { display: block; }
     }
 
-    /* ââ Loading screen âââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+    /* ── Loading screen ─────────────────────────────────────────────────────── */
     #loader {
       position: fixed;
       inset: 0;
@@ -350,7 +352,7 @@
   <h1 class="site-title">Kyle's Links</h1>
   <div class="links">
 
-    <!-- âï¸  UPDATE THESE LINKS -->
+    <!-- ✏️  UPDATE THESE LINKS -->
     <a class="link-btn" href="https://twitter.com/yourhandle" target="_blank" rel="noopener">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -389,7 +391,7 @@
   </div>
   <div class="scroll-hint">
     <span>Scroll down to play</span>
-    <span class="arr">â</span>
+    <span class="arr">↓</span>
   </div>
 </div>
 
@@ -398,10 +400,10 @@
 <div class="paddle" id="paddle-R"><span class="paddle-label">Right</span></div>
 
 <!-- Back to links pill -->
-<div id="back-pill" onclick="exitGame()">â Back to Links</div>
+<div id="back-pill" onclick="exitGame()">&larr; Back to Links</div>
 
 <!-- Launch hint: mobile portrait only, shown in game mode before ball launch -->
-<div id="launch-hint">â Scroll to launch â</div>
+<div id="launch-hint">&darr; Scroll to launch &darr;</div>
 
 <!-- Mobile score strip: mirrors the game's scoreboard below the table (portrait only) -->
 <div id="mobile-score">
@@ -413,11 +415,11 @@
 <progress id="progress" style="display:none" value="0" max="100"></progress>
 
 <script>
-// âââ Device detection âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Device detection ─────────────────────────────────────────────────────────
 function isMobilePortrait() {
   return window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
 }
-// Snapshot at load â used in event handlers that fire after initial setup
+// Snapshot at load — used in event handlers that fire after initial setup
 var IS_MOBILE = isMobilePortrait();
 
 // Fraction of the game canvas width that is the pinball TABLE (left side).
@@ -425,7 +427,7 @@ var IS_MOBILE = isMobilePortrait();
 // Adjust this if the table feels too narrow or the scoreboard peeks through.
 var TABLE_FRAC = 0.64;
 
-// âââ State ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── State ────────────────────────────────────────────────────────────────────
 var gameReady       = false;
 var inGameMode      = false;
 var ballLaunched    = false;
@@ -446,7 +448,7 @@ var scoreMirror = document.getElementById('score-mirror');
 var scoreCtx    = scoreMirror ? scoreMirror.getContext('2d') : null;
 var scoreRaf    = null;
 
-// âââ Emscripten Module (must exist before SpaceCadetPinball.js loads) ââââââââ
+// ─── Emscripten Module (must exist before SpaceCadetPinball.js loads) ────────
 var JSDELIVR_BASE = 'https://cdn.jsdelivr.net/gh/alula/SpaceCadetPinball@gh-pages/';
 
 var Module = {
@@ -505,9 +507,9 @@ var Module = {
   }
 };
 Module.setStatus('Downloading\u2026');
-window.onerror = function() { Module.setStatus('Error â check console'); };
+window.onerror = function() { Module.setStatus('Error — check console'); };
 
-// âââ Canvas sizing ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Canvas sizing ────────────────────────────────────────────────────────────
 function resizeCanvas() {
   var c = document.getElementById('canvas');
   if (!c || !c.width || !c.height) return;
@@ -532,7 +534,7 @@ window.addEventListener('resize', function() {
   resizeCanvas();
 });
 
-// âââ Score mirror (portrait mobile only) âââââââââââââââââââââââââââââââââââââ
+// ─── Score mirror (portrait mobile only) ─────────────────────────────────────
 // Copies the scoreboard region from the WebGL game canvas into the strip below.
 // Works when Emscripten preserves the drawing buffer (most builds do).
 function startScoreMirror() {
@@ -578,7 +580,7 @@ function startScoreMirror() {
   mirrorLoop();
 }
 
-// âââ Key simulation âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Key simulation ───────────────────────────────────────────────────────────
 function fireKey(type, keyCode, key, code) {
   var c = document.getElementById('canvas');
   var opts = {
@@ -613,7 +615,7 @@ function launchBall() {
   }
 }
 
-// âââ Scroll layer âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Scroll layer ─────────────────────────────────────────────────────────────
 var sl = document.createElement('div');
 sl.id = 'scroll-layer';
 Object.assign(sl.style, {
@@ -630,13 +632,13 @@ document.body.appendChild(sl);
 
 function threshold() { return window.innerHeight * 0.42; }
 
-// âââ Scroll-to-bottom launch (mobile) âââââââââââââââââââââââââââââââââââââââââ
+// ─── Scroll-to-bottom launch (mobile) ─────────────────────────────────────────
 function handleBottomReached() {
   if (bottomTriggered || !inGameMode) return;
   bottomTriggered = true;
 
   var maxScroll    = sl.scrollHeight - sl.clientHeight;
-  // Bounce back to ~40% of max scroll â keeps us in game mode (above threshold)
+  // Bounce back to ~40% of max scroll — keeps us in game mode (above threshold)
   var bounceTarget = Math.floor(maxScroll * 0.40);
 
   sl.scrollTo({ top: bounceTarget, behavior: 'smooth' });
@@ -664,7 +666,7 @@ sl.addEventListener('scroll', function() {
   }
 }, { passive: true });
 
-// âââ Game mode enter / exit âââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Game mode enter / exit ───────────────────────────────────────────────────
 function enterGame() {
   inGameMode = true;
   overlay.classList.add('hidden');
@@ -678,7 +680,7 @@ function enterGame() {
     if (!ballLaunched) {
       // Ball hasn't launched yet: show hint, keep scroll active so user can reach bottom
       if (launchHint) launchHint.classList.add('show');
-      // Do NOT set sl.style.pointerEvents = 'none' yet â user needs to scroll to bottom
+      // Do NOT set sl.style.pointerEvents = 'none' yet — user needs to scroll to bottom
     } else {
       // Ball already launched (user scrolled away and back): show paddles
       paddleL.classList.add('active');
@@ -711,13 +713,13 @@ function _exitInternal() {
   }
 }
 
-// Called from back pill â scroll programmatically to top
+// Called from back pill — scroll programmatically to top
 function exitGame() {
   _exitInternal();
   sl.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// âââ Paddle controls ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Paddle controls ──────────────────────────────────────────────────────────
 function bindPaddle(el, dn, up) {
   function press(e)  { e.preventDefault(); dn(); el.classList.add('lit');    }
   function release(e){ e.preventDefault(); up(); el.classList.remove('lit'); }
