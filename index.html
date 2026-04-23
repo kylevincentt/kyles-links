@@ -8,7 +8,7 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #04000e;
+      background: #04000e url('https://upload.wikimedia.org/wikipedia/en/1/1e/Windowsxp.png') center/cover no-repeat fixed;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       height: 100dvh;
@@ -22,18 +22,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #04000e;
+      background: transparent; /* Bliss wallpaper shows through from body */
       z-index: 1;
     }
 
-    /* Portrait mobile: machine fills bottom half, score strip fills top half.
-       Exact heights are set dynamically by resizeCanvas() in JS. */
+    /* Portrait mobile: machine sits at bottom, Bliss wallpaper fills space above. */
     @media (max-width: 768px) and (orientation: portrait) {
       #game-wrapper {
         align-items: flex-end;
         justify-content: flex-start;  /* left-align so scoreboard clips off-screen right */
         overflow: hidden;
-        padding-top: 50vh; /* CSS fallback — JS overrides with exact value */
       }
     }
 
@@ -240,34 +238,7 @@
     #back-pill.show { opacity: 1; pointer-events: auto; }
     #back-pill:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
 
-    /* ── Mobile score strip (portrait only, top 50% of viewport) ───────────── */
-    #mobile-score {
-      display: none;               /* hidden on desktop / landscape */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 50vh;                /* CSS fallback — JS sets exact value */
-      background: #04000e;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      z-index: 28;
-      align-items: flex-end;       /* bottom-align so mirror is flush with machine */
-      justify-content: center;     /* horizontal center */
-      overflow: hidden;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-    #mobile-score.show { opacity: 1; }
-    @media (max-width: 768px) and (orientation: portrait) {
-      #mobile-score { display: flex; }
-    }
-    #score-mirror {
-      /* sized explicitly by JS — just needs to be a block element */
-      display: block;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-    }
+    /* Score strip removed — Bliss wallpaper fills space above pinball machine */
 
     /* #launch-hint removed — right-tap-to-launch replaces scroll-to-launch */
 
@@ -386,11 +357,6 @@
 <!-- Back to links pill -->
 <div id="back-pill" onclick="exitGame()">&larr; Back to Links</div>
 
-<!-- Mobile score strip: mirrors the game's scoreboard below the table (portrait only) -->
-<div id="mobile-score">
-  <canvas id="score-mirror"></canvas>
-</div>
-
 <!-- Emscripten hooks (hidden) -->
 <div id="status" style="display:none"></div>
 <progress id="progress" style="display:none" value="0" max="100"></progress>
@@ -423,29 +389,6 @@ var backPill    = document.getElementById('back-pill');
 var loadFill    = document.getElementById('load-fill');
 var loadSub     = document.getElementById('load-sub');
 var loader      = document.getElementById('loader');
-var mobileScore = document.getElementById('mobile-score');
-var scoreMirror = document.getElementById('score-mirror');
-var scoreCtx    = scoreMirror ? scoreMirror.getContext('2d') : null;
-var scoreRaf    = null;
-
-// ─── Patch canvas.getContext to request preserveDrawingBuffer ────────────────
-// Without this, WebGL clears its framebuffer after each frame and drawImage()
-// on the WebGL canvas returns black. Must happen before Emscripten calls getContext.
-(function() {
-  var c = document.getElementById('canvas');
-  var orig = c.getContext.bind(c);
-  c.getContext = function(type, attrs) {
-    if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
-      try {
-        attrs = Object.assign({}, attrs || {}, { preserveDrawingBuffer: true });
-        var ctx = orig(type, attrs);
-        if (ctx) return ctx;
-      } catch(e) {}
-    }
-    return orig(type, attrs);
-  };
-})();
-
 // ─── Emscripten Module (must exist before SpaceCadetPinball.js loads) ────────
 var JSDELIVR_BASE = 'https://pinball.alula.me/';
 
@@ -483,7 +426,6 @@ var Module = {
         (function waitForSize() {
           if (c.width > 0 && c.height > 0) {
             resizeCanvas();
-            startScoreMirror();
             if (pendingLaunch) launchBall();
           } else {
             setTimeout(waitForSize, 50);
@@ -531,31 +473,12 @@ function resizeCanvas() {
       clip.style.width  = window.innerWidth + 'px';
       clip.style.height = machineH + 'px';
     }
-
-    // Score strip = remaining space above the machine (viewport - machine height).
-    // The strip shows the bottom half of the scoreboard at natural (machine) scale.
-    var stripH  = Math.max(0, window.innerHeight - machineH);
-    var mirrorW = Math.round(nw * (1 - TABLE_FRAC) * scale);
-    // Natural height of the bottom half of the scoreboard at machine scale:
-    var mirrorH = Math.min(Math.round(nh * scale / 2), stripH);
-
-    if (mobileScore) mobileScore.style.height = stripH + 'px';
-    if (gw)          gw.style.paddingTop       = stripH + 'px';
-
-    if (scoreMirror) {
-      scoreMirror.width        = mirrorW;
-      scoreMirror.height       = mirrorH;
-      scoreMirror.style.width  = mirrorW + 'px';
-      scoreMirror.style.height = mirrorH + 'px';
-    }
   } else {
     // Desktop / landscape: fit full game on screen
     var scale = Math.min(window.innerWidth / nw, window.innerHeight / nh);
     c.style.width  = Math.round(nw * scale) + 'px';
     c.style.height = Math.round(nh * scale) + 'px';
     if (clip) { clip.style.width = ''; clip.style.height = ''; }
-    if (mobileScore) mobileScore.style.height = '';
-    if (gw) gw.style.paddingTop = '';
   }
 }
 
@@ -563,65 +486,6 @@ window.addEventListener('resize', function() {
   IS_MOBILE = isMobilePortrait();
   resizeCanvas();
 });
-
-// ─── Score mirror (portrait mobile only) ─────────────────────────────────────
-// Copies the scoreboard region from the WebGL game canvas into the strip below.
-// Works when Emscripten preserves the drawing buffer (most builds do).
-function startScoreMirror() {
-  if (!isMobilePortrait() || !scoreCtx) return;
-  if (scoreRaf) return; // already running
-
-  var gameCanvas = document.getElementById('canvas');
-
-  function mirrorLoop() {
-    if (!gameCanvas.width || !gameCanvas.height) {
-      scoreRaf = requestAnimationFrame(mirrorLoop);
-      return;
-    }
-
-    // Source: right scoreboard column, bottom half only (hide title art at top)
-    var srcX = Math.floor(gameCanvas.width * TABLE_FRAC);
-    var srcW = gameCanvas.width - srcX;
-    var srcY = Math.floor(gameCanvas.height / 2);  // start at vertical midpoint
-    var srcH = gameCanvas.height - srcY;            // bottom half in source pixels
-
-    // Display at the same scale as the machine — no stretching
-    var cssH = parseFloat(gameCanvas.style.height);
-    if (!cssH) { scoreRaf = requestAnimationFrame(mirrorLoop); return; }
-    var scale = cssH / gameCanvas.height;
-    var dispW = Math.round(srcW * scale);
-    var dispH = Math.round(srcH * scale);  // natural scale, not stretched
-
-    // Cap to the mirror canvas size (set by resizeCanvas to fit the strip)
-    if (scoreMirror.height > 0 && dispH > scoreMirror.height) {
-      // Strip is shorter than half-scoreboard — show the bottommost pixels
-      dispH = scoreMirror.height;
-      srcH  = Math.round(dispH / scale);
-      srcY  = gameCanvas.height - srcH;  // take from the very bottom
-    }
-
-    if (scoreMirror.width  !== dispW) scoreMirror.width  = dispW;
-    if (scoreMirror.height !== dispH) scoreMirror.height = dispH;
-
-    try {
-      scoreCtx.clearRect(0, 0, dispW, dispH);
-      scoreCtx.drawImage(
-        gameCanvas,
-        srcX, srcY, srcW, srcH,  // bottom portion of scoreboard column
-        0,    0,    dispW, dispH  // same scale as machine
-      );
-    } catch (e) {
-      // drawImage fails when WebGL context loses the drawing buffer.
-      // Silently stop; the strip stays dark (not fatal).
-      scoreRaf = null;
-      return;
-    }
-
-    scoreRaf = requestAnimationFrame(mirrorLoop);
-  }
-
-  mirrorLoop();
-}
 
 // ─── Key simulation ───────────────────────────────────────────────────────────
 function fireKey(type, keyCode, key, code) {
@@ -681,9 +545,7 @@ function enterGame() {
   backPill.classList.add('show');
 
   if (IS_MOBILE) {
-    // Show score strip and enable game controls immediately
-    mobileScore.classList.add('show');
-    startScoreMirror();
+    // Enable game controls immediately
     paddleL.classList.add('active');
     paddleR.classList.add('active');
     sl.style.pointerEvents = 'none'; // let touches reach the canvas
@@ -705,9 +567,6 @@ function _exitInternal() {
   paddleR.classList.remove('active');
   backPill.classList.remove('show');
   sl.style.pointerEvents = 'auto'; // re-enable scrolling
-  if (IS_MOBILE) {
-    mobileScore.classList.remove('show');
-  }
 }
 
 // Called from back pill — scroll programmatically to top
