@@ -1,277 +1,434 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Kyle's Links</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #04001a; display: flex; justify-content: center; min-height: 100vh; }
-    /* FIX 1: align-self: flex-start prevents the flex container from
-       stretching .page to 100vh. Without this, percentage-based `top`
-       values on the .hit overlay anchors are calculated against the
-       inflated viewport height instead of the image height, shifting
-       every tap target far below the actual button art. */
-    .page { position: relative; width: 100%; max-width: 480px; margin: 0 auto; align-self: flex-start; }
-    /* FIX 2: add vendor-prefixed image-rendering values so pixel art
-       stays crisp on older iOS Safari (-webkit-optimize-contrast) and
-       Firefox (crisp-edges). Without these the browser anti-aliases the
-       upscaled JPEG and it looks blurry on high-DPI mobile screens. */
-    .bg-img { width: 100%; display: block; image-rendering: -webkit-optimize-contrast; image-rendering: pixelated; image-rendering: crisp-edges; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .page::after {
+    body {
+      background: #04000e;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      height: 100dvh;
+      width: 100vw;
+    }
+
+    #game-wrapper {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #04000e;
+      z-index: 1;
+    }
+
+    canvas#canvas {
+      display: none;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    #scroll-layer {
+      position: fixed;
+      inset: 0;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      z-index: 10;
+      -webkit-overflow-scrolling: touch;
+    }
+    #scroll-spacer { height: 300vh; }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px 40px;
+      pointer-events: none;
+      transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+                  visibility 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    #overlay::before {
       content: '';
       position: absolute;
       inset: 0;
-      pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0,0,0,.06) 3px,
-        rgba(0,0,0,.06) 4px
+      background: radial-gradient(
+        ellipse 70% 65% at 50% 48%,
+        rgba(0,0,0,0.62) 0%,
+        transparent 100%
       );
-      z-index: 5;
+      pointer-events: none;
     }
 
-    /* FIX 3: touch-action: manipulation removes the 300ms tap delay on
-       mobile browsers that still apply it, making taps feel instant. */
-    .hit {
-      position: absolute;
-      left: 3%;
-      width: 94%;
-      cursor: pointer;
-      border-radius: 6px;
-      transition: background .18s ease, box-shadow .18s ease;
-      z-index: 10;
+    .site-title {
+      position: relative;
+      font-size: clamp(2rem, 9vw, 4.5rem);
+      font-weight: 900;
+      color: #fff;
+      text-align: center;
+      letter-spacing: 0.02em;
+      margin-bottom: 28px;
+      text-shadow:
+        0 0 8px  rgba(255, 120,  30, 1.0),
+        0 0 24px rgba(255,  80,   0, 0.7),
+        0 0 60px rgba(255,  40,   0, 0.35),
+        0 0 100px rgba(255, 160, 60, 0.15);
+    }
+
+    .links {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      width: min(310px, 86vw);
+    }
+
+    .link-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 20px;
+      background: rgba(255,255,255,0.09);
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      border-radius: 100px;
+      color: #fff;
+      font-size: 0.93rem;
+      font-weight: 600;
       text-decoration: none;
-      display: block;
-      touch-action: manipulation;
-    }
-    .hit:hover {
-      background: rgba(0,246,255,.09);
-      box-shadow: 0 0 20px rgba(0,246,255,.4), inset 0 0 20px rgba(0,246,255,.05);
-    }
-
-    .hit-doppel      { top: 47.0%; height: 6.5%; }
-    .hit-keepsake    { top: 54.2%; height: 6.5%; }
-    .hit-cornerstone { top: 61.4%; height: 6.5%; }
-    .hit-viral       { top: 68.6%; height: 6.5%; }
-    .hit-email       { left: 18%; width: 64%; top: 78.0%; height: 5.0%; }
-
-    .hit-coffee {
-      position: absolute;
-      left: 72%;
-      width: 24%;
-      top: 91.5%;
-      height: 7%;
-      border-radius: 50%;
       cursor: pointer;
-      z-index: 10;
-      touch-action: manipulation;
-      animation: coffeeBounce 3s ease-in-out 2s infinite;
+      pointer-events: auto;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .hit-coffee:hover { background: rgba(255,230,0,.12); }
+    .link-btn svg { flex-shrink: 0; opacity: 0.85; }
+    .link-btn:hover {
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,160,60,0.5);
+      box-shadow: 0 0 20px rgba(255,100,0,0.2);
+      transform: translateY(-1px);
+    }
+    .link-btn:active { transform: scale(0.97); }
 
-    @keyframes coffeeBounce {
-      0%,82%,100% { transform: translateY(0); }
-      88%          { transform: translateY(-6px); }
-      94%          { transform: translateY(-3px); }
+    .scroll-hint {
+      position: relative;
+      margin-top: 22px;
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      animation: nudge 2.4s ease-in-out infinite;
+    }
+    .scroll-hint .arr { font-size: 1rem; }
+    @keyframes nudge {
+      0%, 100% { transform: translateY(0);   opacity: 0.4; }
+      50%       { transform: translateY(6px); opacity: 0.7; }
     }
 
-    .star {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: #fff;
-      border-radius: 50%;
-      animation: twinkle var(--d,2s) ease-in-out var(--delay,0s) infinite;
+    .paddle {
+      position: fixed;
+      bottom: 0;
+      height: 42%;
+      width: 40%;
+      z-index: 30;
       opacity: 0;
       pointer-events: none;
+      transition: opacity 0.45s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 18px;
     }
-    @keyframes twinkle {
-      0%,100% { opacity: 0; transform: scale(1); }
-      50%      { opacity: var(--op,.85); transform: scale(1.7); }
+    .paddle.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .paddle.lit { filter: brightness(1.6); }
+
+    #paddle-L {
+      left: 0;
+      background: radial-gradient(ellipse 100% 80% at 0% 100%, rgba(60,180,255,0.18) 0%, transparent 70%);
+      border-top-right-radius: 60%;
+      justify-content: flex-start;
+      padding-left: 14px;
+    }
+    #paddle-R {
+      right: 0;
+      background: radial-gradient(ellipse 100% 80% at 100% 100%, rgba(60,180,255,0.18) 0%, transparent 70%);
+      border-top-left-radius: 60%;
+      justify-content: flex-end;
+      padding-right: 14px;
+    }
+    .paddle-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
     }
 
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(0,246,255,.25);
+    #back-pill {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 35;
+      background: rgba(8, 4, 20, 0.82);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      border-radius: 100px;
+      cursor: pointer;
       pointer-events: none;
-      transform: scale(0);
-      animation: rippleAnim .55s linear forwards;
-      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.45s ease;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
     }
-    @keyframes rippleAnim { to { transform: scale(5); opacity: 0; } }
+    #back-pill.show { opacity: 1; pointer-events: auto; }
+    #back-pill:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
 
-    .modal-overlay {
-      display: none;
+    #loader {
       position: fixed;
       inset: 0;
-      background: rgba(4,0,26,.9);
-      z-index: 100;
+      background: #04000e;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(4px);
+      z-index: 100;
+      transition: opacity 0.8s ease;
     }
-    .modal-overlay.open { display: flex; animation: fadeIn .22s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    #loader.fade { opacity: 0; pointer-events: none; }
 
-    .popup {
-      font-family: 'Press Start 2P', monospace;
-      background: #0d0118;
-      border: 3px solid #ff2d78;
-      border-radius: 10px;
-      padding: 30px 24px 24px;
-      width: min(90vw, 340px);
-      position: relative;
-      box-shadow:
-        0 0 0 1px #b026ff,
-        0 0 32px rgba(255,45,120,.65),
-        0 0 70px rgba(176,38,255,.35);
-      animation: popIn .28s cubic-bezier(.34,1.56,.64,1);
+    .load-title {
+      font-size: clamp(1.6rem, 6vw, 2.4rem);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 24px;
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 20px rgba(255,100,0,0.7);
     }
-    @keyframes popIn {
-      from { transform: scale(.65) translateY(40px); opacity: 0; }
-      to   { transform: scale(1)   translateY(0);    opacity: 1; }
+    .load-track {
+      width: 160px;
+      height: 3px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 2px;
+      overflow: hidden;
     }
-
-    .popup-close {
-      position: absolute;
-      top: 10px; right: 14px;
-      background: none;
-      border: none;
-      color: #ff2d78;
-      font-size: 16px;
-      cursor: pointer;
-      font-family: 'Press Start 2P', monospace;
-      line-height: 1;
+    .load-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4400, #ffaa00);
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 2px;
     }
-    .popup-close:hover { color: #fff; }
-
-    .popup-mug {
-      text-align: center;
-      font-size: 38px;
-      margin-bottom: 14px;
-      animation: mugWiggle 2.5s ease-in-out infinite;
-    }
-    @keyframes mugWiggle {
-      0%,100% { transform: rotate(0deg); }
-      25%      { transform: rotate(-8deg); }
-      75%      { transform: rotate(8deg); }
+    .load-sub {
+      margin-top: 12px;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.06em;
     }
 
-    .popup-title {
-      font-size: clamp(9px, 2.6vw, 12px);
-      color: #ffe600;
-      text-align: center;
-      letter-spacing: 1px;
-      line-height: 1.7;
-      text-shadow: 0 0 12px rgba(255,230,0,.75);
-      margin-bottom: 10px;
-    }
-
-    .popup-sub {
-      font-size: 8px;
-      color: #b026ff;
-      text-align: center;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
-    }
-
-    .popup-btns { display: flex; flex-direction: column; gap: 10px; }
-
-    .popup-btn {
-      display: block;
-      text-align: center;
-      font-family: 'Press Start 2P', monospace;
-      font-size: clamp(8px, 2vw, 10px);
-      padding: 12px 10px;
-      border-radius: 6px;
-      text-decoration: none;
-      border: 2px solid transparent;
-      transition: transform .12s ease, box-shadow .12s ease;
-      letter-spacing: 1px;
-    }
-    .popup-btn:hover { transform: scale(1.04); box-shadow: 0 0 14px rgba(255,255,255,.3); }
-    .btn-venmo   { background: #008cff; color: #fff; border-color: #006acc; }
-    .btn-cashapp { background: #00c244; color: #fff; border-color: #009933; }
-    .btn-paypal  { background: #ffc439; color: #1a1a1a; border-color: #e6ad20; }
+    #status, #progress { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="page" id="page">
-    <img class="bg-img" id="bgImg" src="data:image/jpeg;base64,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" alt="Kyle's Links"/>
-    <div id="stars"></div>
 
-    <a class="hit hit-doppel"      href="https://dopl.work"            target="_blank" rel="noopener" aria-label="Doppel"></a>
-    <a class="hit hit-keepsake"    href="https://keepsake.it.com"      target="_blank" rel="noopener" aria-label="Keepsake"></a>
-    <a class="hit hit-cornerstone" href="https://christcornerstone.org" target="_blank" rel="noopener" aria-label="Christ Cornerstone"></a>
-    <a class="hit hit-viral"       href="https://ebay.com"             target="_blank" rel="noopener" aria-label="Viral Finds"></a>
-    <a class="hit hit-email"       href="mailto:kylevcrum@gmail.com"   aria-label="Email me"></a>
-    <div class="hit-coffee" id="coffeeBtn" role="button" aria-label="Buy me a coffee"></div>
+<div id="loader">
+  <div class="load-title">Kyle's Links</div>
+  <div class="load-track"><div class="load-fill" id="load-fill"></div></div>
+  <div class="load-sub" id="load-sub">Loading...</div>
+</div>
+
+<div id="game-wrapper">
+  <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+</div>
+
+<div id="overlay">
+  <h1 class="site-title">Kyle's Links</h1>
+  <div class="links">
+    <a class="link-btn" href="https://twitter.com/yourhandle" target="_blank" rel="noopener">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Twitter / X
+    </a>
+    <a class="link-btn" href="https://instagram.com/yourhandle" target="_blank" rel="noopener">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      Instagram
+    </a>
+    <a class="link-btn" href="https://linkedin.com/in/yourhandle" target="_blank" rel="noopener">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      LinkedIn
+    </a>
+    <a class="link-btn" href="https://github.com/kylevincentt" target="_blank" rel="noopener">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      GitHub
+    </a>
+    <a class="link-btn" href="mailto:kylevcrum@gmail.com">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.908 1.528-1.147C21.69 2.28 24 3.434 24 5.457z"/></svg>
+      Email Me
+    </a>
   </div>
-
-  <div class="modal-overlay" id="coffeeModal" role="dialog" aria-modal="true">
-    <div class="popup">
-      <button class="popup-close" id="closeModal" aria-label="Close">&#x2715;</button>
-      <div class="popup-mug">&#x2615;</div>
-      <div class="popup-title">WANT TO BUY ME<br>A COFFEE?</div>
-      <div class="popup-sub">choose your app</div>
-      <div class="popup-btns">
-        <a class="popup-btn btn-venmo"   href="https://venmo.com/u/KyleVCrum"  target="_blank" rel="noopener">&#x1F49C; VENMO</a>
-        <a class="popup-btn btn-cashapp" href="https://cash.app/$KyleVCrum"    target="_blank" rel="noopener">&#x1F49A; CASH APP</a>
-        <a class="popup-btn btn-paypal"  href="https://paypal.me/KyleVCrum"    target="_blank" rel="noopener">&#x1F49B; PAYPAL</a>
-      </div>
-    </div>
+  <div class="scroll-hint">
+    <span>Scroll down to play</span>
+    <span class="arr">↓</span>
   </div>
+</div>
 
-  <script>
-    (function() {
-      var container = document.getElementById('stars');
-      var img = document.getElementById('bgImg');
-      function spawnStars() {
-        for (var i = 0; i < 22; i++) {
-          var s = document.createElement('div');
-          s.className = 'star';
-          s.style.left = (Math.random() * 95 + 2) + '%';
-          s.style.top  = (Math.random() * 28) + '%';
-          var dur = (1.4 + Math.random() * 2.2).toFixed(2) + 's';
-          var del = (Math.random() * 3).toFixed(2) + 's';
-          var op  = (0.5 + Math.random() * 0.5).toFixed(2);
-          s.style.setProperty('--d', dur);
-          s.style.setProperty('--delay', del);
-          s.style.setProperty('--op', op);
-          container.appendChild(s);
-        }
-      }
-      if (img.complete) spawnStars();
-      else img.addEventListener('load', spawnStars);
-    })();
+<div class="paddle" id="paddle-L"><span class="paddle-label">Left</span></div>
+<div class="paddle" id="paddle-R"><span class="paddle-label">Right</span></div>
+<div id="back-pill" onclick="exitGame()">↑ Back to Links</div>
+<div id="status" style="display:none"></div>
+<progress id="progress" style="display:none" value="0" max="100"></progress>
 
-    document.querySelectorAll('.hit').forEach(function(el) {
-      el.addEventListener('click', function(e) {
-        var rect = el.getBoundingClientRect();
-        var r = document.createElement('div');
-        r.className = 'ripple';
-        var size = Math.max(rect.width, rect.height);
-        r.style.width = r.style.height = size + 'px';
-        r.style.left  = (e.clientX - rect.left  - size/2) + 'px';
-        r.style.top   = (e.clientY - rect.top   - size/2) + 'px';
-        el.appendChild(r);
-        r.addEventListener('animationend', function() { r.remove(); });
-      });
-    });
+<script>
+var gameReady = false, inGameMode = false, ballLaunched = false, pendingLaunch = false;
+var overlay = document.getElementById('overlay');
+var paddleL = document.getElementById('paddle-L');
+var paddleR = document.getElementById('paddle-R');
+var backPill = document.getElementById('back-pill');
+var loadFill = document.getElementById('load-fill');
+var loadSub = document.getElementById('load-sub');
+var loader = document.getElementById('loader');
 
-    var coffeeBtn  = document.getElementById('coffeeBtn');
-    var modal      = document.getElementById('coffeeModal');
-    var closeBtn   = document.getElementById('closeModal');
-    coffeeBtn.addEventListener('click', function() { modal.classList.add('open'); });
-    closeBtn.addEventListener('click',  function() { modal.classList.remove('open'); });
-    modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('open'); });
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') modal.classList.remove('open'); });
-  </script>
+var Module = {
+  preRun: [], postRun: [],
+  print: function(t) { console.log(t); },
+  printErr: function(t) { console.error(t); },
+  canvas: (function() {
+    var c = document.getElementById('canvas');
+    c.addEventListener('webglcontextlost', function(e) { e.preventDefault(); }, false);
+    return c;
+  })(),
+  setStatus: function(text) {
+    if (!Module.setStatus._last) Module.setStatus._last = '';
+    if (text === Module.setStatus._last) return;
+    Module.setStatus._last = text;
+    var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/( \d+)\)/);
+    if (m) {
+      var pct = Math.round(100 * parseInt(m[2]) / parseInt(m[4]));
+      loadFill.style.width = pct + '%';
+      loadSub.textContent = 'Loading... ' + pct + '%';
+    } else if (text === '') {
+      loadFill.style.width = '100%';
+      loadSub.textContent = 'Ready!';
+      setTimeout(function() {
+        loader.classList.add('fade');
+        var c = document.getElementById('canvas');
+        c.style.display = 'block';
+        gameReady = true;
+        resizeCanvas();
+        if (pendingLaunch) launchBall();
+        setTimeout(function() { loader.style.display = 'none'; }, 900);
+      }, 350);
+    } else {
+      loadSub.textContent = text;
+    }
+  },
+  totalDependencies: 0,
+  monitorRunDependencies: function(left) {
+    this.totalDependencies = Math.max(this.totalDependencies, left);
+    Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : '');
+  }
+};
+Module.setStatus('Downloading...');
+window.onerror = function() { Module.setStatus('Error'); };
+
+function resizeCanvas() {
+  var c = document.getElementById('canvas');
+  if (!c || !c.width || !c.height) return;
+  var scale = Math.min(window.innerWidth / c.width, window.innerHeight / c.height);
+  c.style.width = (c.width * scale) + 'px';
+  c.style.height = (c.height * scale) + 'px';
+}
+window.addEventListener('resize', resizeCanvas);
+
+function fireKey(type, keyCode, key, code) {
+  var c = document.getElementById('canvas');
+  var opts = { bubbles: true, cancelable: true, key: key, code: code, keyCode: keyCode, which: keyCode };
+  [c, document, window].forEach(function(t) { try { t.dispatchEvent(new KeyboardEvent(type, opts)); } catch(e) {} });
+}
+var LDn = function() { fireKey('keydown', 90, 'z', 'KeyZ'); };
+var LUp = function() { fireKey('keyup', 90, 'z', 'KeyZ'); };
+var RDn = function() { fireKey('keydown', 191, '/', 'Slash'); };
+var RUp = function() { fireKey('keyup', 191, '/', 'Slash'); };
+
+function launchBall() {
+  if (ballLaunched) return;
+  ballLaunched = true;
+  fireKey('keydown', 32, ' ', 'Space');
+  setTimeout(function() { fireKey('keyup', 32, ' ', 'Space'); }, 750);
+}
+
+var sl = document.createElement('div');
+Object.assign(sl.style, { position: 'fixed', inset: '0', overflowY: 'scroll', overflowX: 'hidden', zIndex: '10', WebkitOverflowScrolling: 'touch' });
+var spacer = document.createElement('div');
+spacer.style.height = '300vh';
+sl.appendChild(spacer);
+document.body.appendChild(sl);
+
+function threshold() { return window.innerHeight * 0.42; }
+
+sl.addEventListener('scroll', function() {
+  if (sl.scrollTop > threshold()) { if (!inGameMode) enterGame(); }
+  else { if (inGameMode) _exitInternal(); }
+}, { passive: true });
+
+function enterGame() {
+  inGameMode = true;
+  overlay.classList.add('hidden');
+  paddleL.classList.add('active'); paddleR.classList.add('active');
+  backPill.classList.add('show');
+  sl.style.pointerEvents = 'none';
+  if (gameReady) launchBall(); else pendingLaunch = true;
+}
+function _exitInternal() {
+  inGameMode = false;
+  overlay.classList.remove('hidden');
+  paddleL.classList.remove('active'); paddleR.classList.remove('active');
+  backPill.classList.remove('show');
+  sl.style.pointerEvents = 'auto';
+}
+function exitGame() { _exitInternal(); sl.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+function bindPaddle(el, dn, up) {
+  function press(e)  { e.preventDefault(); dn(); el.classList.add('lit'); }
+  function release(e){ e.preventDefault(); up(); el.classList.remove('lit'); }
+  el.addEventListener('mousedown', press); el.addEventListener('mouseup', release); el.addEventListener('mouseleave', release);
+  el.addEventListener('touchstart', press, { passive: false }); el.addEventListener('touchend', release, { passive: false }); el.addEventListener('touchcancel', release);
+}
+bindPaddle(paddleL, LDn, LUp);
+bindPaddle(paddleR, RDn, RUp);
+
+var cv = document.getElementById('canvas');
+cv.addEventListener('mousedown', function(e) { var mid = cv.getBoundingClientRect().left + cv.getBoundingClientRect().width/2; (e.clientX < mid) ? LDn() : RDn(); });
+cv.addEventListener('mouseup', function() { LUp(); RUp(); });
+cv.addEventListener('touchstart', function(e) { e.preventDefault(); var mid = cv.getBoundingClientRect().left + cv.getBoundingClientRect().width/2; for (var i=0; i<e.changedTouches.length; i++) { (e.changedTouches[i].clientX < mid) ? LDn() : RDn(); } }, { passive: false });
+cv.addEventListener('touchend', function(e) { e.preventDefault(); LUp(); RUp(); }, { passive: false });
+</script>
+<script async src="SpaceCadetPinball.js"></script>
 </body>
 </html>
