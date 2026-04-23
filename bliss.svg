@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Sky: deep blue at top, lighter towards horizon -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#0a3f85"/>
+      <stop offset="30%"  stop-color="#1a6cb5"/>
+      <stop offset="65%"  stop-color="#4a9fd4"/>
+      <stop offset="100%" stop-color="#82c4e8"/>
+    </linearGradient>
+    <!-- Hill: bright green at crest, dark at base -->
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#5ec234"/>
+      <stop offset="35%"  stop-color="#3fa020"/>
+      <stop offset="100%" stop-color="#1a5c08"/>
+    </linearGradient>
+    <!-- Cloud softness -->
+    <filter id="cloud" x="-25%" y="-50%" width="150%" height="200%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="cloud-sm" x="-25%" y="-50%" width="150%" height="200%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+  </defs>
+
+  <!-- Sky fill -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+
+  <!-- Cloud cluster — right-center (main, iconic) -->
+  <g filter="url(#cloud)" opacity="0.94">
+    <ellipse cx="1400" cy="170"  rx="290" ry="78"  fill="#ffffff"/>
+    <ellipse cx="1290" cy="200"  rx="175" ry="60"  fill="#ffffff"/>
+    <ellipse cx="1510" cy="190"  rx="190" ry="65"  fill="#ffffff"/>
+    <ellipse cx="1395" cy="140"  rx="140" ry="52"  fill="#ffffff"/>
+    <ellipse cx="1340" cy="115"  rx="90"  ry="38"  fill="#f0f6ff"/>
+    <ellipse cx="1460" cy="125"  rx="110" ry="42"  fill="#f0f6ff"/>
+  </g>
+
+  <!-- Cloud cluster — upper left -->
+  <g filter="url(#cloud)" opacity="0.72">
+    <ellipse cx="600"  cy="125"  rx="200" ry="56"  fill="#ffffff"/>
+    <ellipse cx="510"  cy="148"  rx="120" ry="44"  fill="#ffffff"/>
+    <ellipse cx="700"  cy="138"  rx="145" ry="50"  fill="#ffffff"/>
+    <ellipse cx="605"  cy="100"  rx="95"  ry="36"  fill="#f5f9ff"/>
+  </g>
+
+  <!-- Wisp — far right -->
+  <g filter="url(#cloud-sm)" opacity="0.45">
+    <ellipse cx="1740" cy="100"  rx="145" ry="36"  fill="#ffffff"/>
+    <ellipse cx="1820" cy="118"  rx="90"  ry="28"  fill="#ffffff"/>
+  </g>
+
+  <!-- Wisp — far left -->
+  <g filter="url(#cloud-sm)" opacity="0.38">
+    <ellipse cx="180"  cy="155"  rx="130" ry="34"  fill="#ffffff"/>
+  </g>
+
+  <!--
+    THE HILL — the iconic rolling S-curve.
+    Rises gently from left edge ~y=800, crests around x=960 y=535,
+    then sweeps back down to right edge ~y=730.
+  -->
+  <path
+    d="M0,820
+       C 150,800  320,760  500,700
+       C 660,645  780,595  960,538
+       C 1100,495 1220,530 1380,610
+       C 1540,685 1700,730 1920,728
+       L 1920,1080
+       L 0,1080
+       Z"
+    fill="url(#hill)"
+  />
+
+  <!-- Subtle hill highlight / sheen near crest -->
+  <path
+    d="M 600,680
+       C 720,640  840,605  960,580
+       C 1060,560 1160,570 1260,605
+       C 1100,545 980,520  960,520
+       C 850,518  730,558  620,610
+       Z"
+    fill="rgba(180,255,100,0.12)"
+  />
+</svg>
