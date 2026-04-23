@@ -243,7 +243,7 @@
       background: #04000e;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       z-index: 28;
-      align-items: center;         /* vertical center within strip */
+      align-items: flex-end;       /* bottom-align so mirror is flush with machine */
       justify-content: center;     /* horizontal center */
       overflow: hidden;
       pointer-events: none;
@@ -662,15 +662,6 @@ function launchBall() {
   // Hold spacebar to pull plunger, release to fire
   fireKey('keydown', 32, ' ', 'Space');
   setTimeout(function() { fireKey('keyup', 32, ' ', 'Space'); }, 750);
-  // On mobile: hide the launch hint and enable paddle controls
-  if (IS_MOBILE) {
-    if (launchHint) launchHint.classList.remove('show');
-    paddleL.classList.add('active');
-    paddleR.classList.add('active');
-    // Now that scrolling is no longer needed, disable the scroll layer
-    // so touch events reach the canvas for paddle control
-    sl.style.pointerEvents = 'none';
-  }
 }
 
 // ─── Scroll layer ─────────────────────────────────────────────────────────────
@@ -690,37 +681,11 @@ document.body.appendChild(sl);
 
 function threshold() { return window.innerHeight * 0.42; }
 
-// ─── Scroll-to-bottom launch (mobile) ─────────────────────────────────────────
-function handleBottomReached() {
-  if (bottomTriggered || !inGameMode) return;
-  bottomTriggered = true;
-
-  var maxScroll    = sl.scrollHeight - sl.clientHeight;
-  // Bounce back to ~40% of max scroll — keeps us in game mode (above threshold)
-  var bounceTarget = Math.floor(maxScroll * 0.40);
-
-  sl.scrollTo({ top: bounceTarget, behavior: 'smooth' });
-
-  // Launch after the bounce settles; cancel if user exits game mode during scroll
-  launchTimeout = setTimeout(function() {
-    if (!inGameMode) return;
-    if (gameReady) launchBall();
-    else pendingLaunch = true;
-  }, 520);
-}
-
 sl.addEventListener('scroll', function() {
-  var maxScroll = sl.scrollHeight - sl.clientHeight;
-
   if (sl.scrollTop > threshold()) {
     if (!inGameMode) enterGame();
   } else {
     if (inGameMode) _exitInternal();
-  }
-
-  // Mobile: detect the very bottom of the scroll to trigger launch
-  if (IS_MOBILE && inGameMode && !bottomTriggered && sl.scrollTop >= maxScroll - 8) {
-    handleBottomReached();
   }
 }, { passive: true });
 
@@ -731,20 +696,12 @@ function enterGame() {
   backPill.classList.add('show');
 
   if (IS_MOBILE) {
-    // Show score strip
+    // Show score strip and enable game controls immediately
     mobileScore.classList.add('show');
     startScoreMirror();
-
-    if (!ballLaunched) {
-      // Ball hasn't launched yet: show hint, keep scroll active so user can reach bottom
-      if (launchHint) launchHint.classList.add('show');
-      // Do NOT set sl.style.pointerEvents = 'none' yet — user needs to scroll to bottom
-    } else {
-      // Ball already launched (user scrolled away and back): show paddles
-      paddleL.classList.add('active');
-      paddleR.classList.add('active');
-      sl.style.pointerEvents = 'none';
-    }
+    paddleL.classList.add('active');
+    paddleR.classList.add('active');
+    sl.style.pointerEvents = 'none'; // let touches reach the canvas
   } else {
     // Desktop: launch immediately and pass clicks through to canvas
     paddleL.classList.add('active');
@@ -758,8 +715,6 @@ function enterGame() {
 // Called only from scroll listener (user scrolled back above threshold)
 function _exitInternal() {
   inGameMode = false;
-  bottomTriggered = false;
-  if (launchTimeout) { clearTimeout(launchTimeout); launchTimeout = null; }
   overlay.classList.remove('hidden');
   paddleL.classList.remove('active');
   paddleR.classList.remove('active');
@@ -767,7 +722,6 @@ function _exitInternal() {
   sl.style.pointerEvents = 'auto'; // re-enable scrolling
   if (IS_MOBILE) {
     mobileScore.classList.remove('show');
-    if (launchHint && !ballLaunched) launchHint.classList.remove('show');
   }
 }
 
@@ -812,6 +766,11 @@ cv.addEventListener('touchstart', function(e) {
     if (x < leftZone) {
       LDn();
     } else if (x > rightZone) {
+      // Launch ball on first tap of right side (if not yet launched)
+      if (!ballLaunched) {
+        if (gameReady) launchBall();
+        else pendingLaunch = true;
+      }
       RDn();
     } else {
       // Center zone: pull and release plunger — launches any ball (1st, 2nd, …)
