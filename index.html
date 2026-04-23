@@ -31,7 +31,7 @@
     @media (max-width: 768px) and (orientation: portrait) {
       #game-wrapper {
         align-items: flex-end;
-        justify-content: center;  /* center table if narrower than screen */
+        justify-content: flex-start;  /* left-align so scoreboard clips off-screen right */
         overflow: hidden;
         padding-top: 50vh; /* CSS fallback — JS overrides with exact value */
       }
