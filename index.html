@@ -370,8 +370,15 @@ var Module = {
         var c = document.getElementById('canvas');
         c.style.display = 'block';
         gameReady = true;
-        resizeCanvas();
-        if (pendingLaunch) launchBall();
+        // Poll until canvas has real dimensions (WebGL init may lag behind setStatus)
+        (function waitForSize() {
+          if (c.width > 0 && c.height > 0) {
+            resizeCanvas();
+            if (pendingLaunch) launchBall();
+          } else {
+            setTimeout(waitForSize, 50);
+          }
+        })();
         setTimeout(function() { loader.style.display = 'none'; }, 900);
       }, 350);
     } else {
