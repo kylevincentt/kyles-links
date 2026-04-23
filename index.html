@@ -8,7 +8,7 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0a3f85 url('bliss.svg') center/cover no-repeat fixed;
+      background: #0a3f85;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       height: 100dvh;
@@ -240,6 +240,19 @@
 
     /* Score strip removed — Bliss wallpaper fills space above pinball machine */
 
+    /* ── Bliss wallpaper (portrait: fills space above machine; desktop: full bg) ── */
+    #bliss-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #0a3f85 url('https://upload.wikimedia.org/wikipedia/en/2/27/Bliss_%28Windows_XP%29.png') center/cover no-repeat;
+      z-index: 0;
+    }
+    /* Desktop / landscape: full-screen background */
+    #bliss-bg { height: 100%; }
+    /* Portrait: height set by JS to exactly fill space above machine */
+
     /* #launch-hint removed — right-tap-to-launch replaces scroll-to-launch */
 
     /* ── Loading screen ─────────────────────────────────────────────────────── */
@@ -297,6 +310,9 @@
   <div class="load-track"><div class="load-fill" id="load-fill"></div></div>
   <div class="load-sub" id="load-sub">Loading...</div>
 </div>
+
+<!-- Bliss wallpaper: fills space above pinball machine on portrait; full bg on desktop -->
+<div id="bliss-bg"></div>
 
 <!-- Game lives here -->
 <div id="game-wrapper">
@@ -454,12 +470,12 @@ function resizeCanvas() {
   var c = document.getElementById('canvas');
   if (!c || !c.width || !c.height) return;
   var nw = c.width, nh = c.height;
-  var gw = document.getElementById('game-wrapper');
-  var clip = document.getElementById('canvas-clip');
+  var gw    = document.getElementById('game-wrapper');
+  var clip  = document.getElementById('canvas-clip');
+  var bliss = document.getElementById('bliss-bg');
 
   if (isMobilePortrait()) {
     // Scale so the pinball TABLE (left TABLE_FRAC of canvas) = screen width.
-    // No height constraint — the table always fills the phone width exactly.
     var scale    = window.innerWidth / (nw * TABLE_FRAC);
     var machineH = Math.round(nh * scale);
     var machineW = Math.round(nw * scale);
@@ -467,18 +483,23 @@ function resizeCanvas() {
     c.style.width  = machineW + 'px';
     c.style.height = machineH + 'px';
 
-    // Clip off the right (scoreboard) by constraining the wrapper div width.
-    // overflow:hidden on the wrapper is more reliable than clip-path on iOS Safari.
+    // Clip off the scoreboard with an overflow:hidden wrapper.
     if (clip) {
       clip.style.width  = window.innerWidth + 'px';
       clip.style.height = machineH + 'px';
     }
+
+    // Bliss fills the space above the machine exactly.
+    var aboveH = Math.max(0, window.innerHeight - machineH);
+    if (bliss) bliss.style.height = aboveH + 'px';
+
   } else {
-    // Desktop / landscape: fit full game on screen
+    // Desktop / landscape: fit full game on screen; Bliss fills entire background.
     var scale = Math.min(window.innerWidth / nw, window.innerHeight / nh);
     c.style.width  = Math.round(nw * scale) + 'px';
     c.style.height = Math.round(nh * scale) + 'px';
-    if (clip) { clip.style.width = ''; clip.style.height = ''; }
+    if (clip)  { clip.style.width = ''; clip.style.height = ''; }
+    if (bliss) bliss.style.height = '100%';
   }
 }
 
