@@ -1,25 +1,13 @@
 {
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "klye.org" }],
-      "destination": "https://kylevincent.org/$1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.klye.org" }],
-      "destination": "https://kylevincent.org/$1",
-      "permanent": true
-    }
-  ],
+  "version": 2,
+  "builds": [{ "src": "index.html", "use": "@vercel/static" }],
+  "routes": [{ "src": "/(.*)", "dest": "/index.html" }],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        { "key": "Cross-Origin-Opener-Policy",  "value": "same-origin" },
+        { "key": "Cross-Origin-Embedder-Policy", "value": "require-corp" }
       ]
     }
   ]

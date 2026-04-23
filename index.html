@@ -6,429 +6,87 @@
   <title>Kyle's Links</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: #04000e;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      height: 100dvh;
-      width: 100vw;
-    }
-
-    #game-wrapper {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #04000e;
-      z-index: 1;
-    }
-
-    canvas#canvas {
-      display: none;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-    }
-
-    #scroll-layer {
-      position: fixed;
-      inset: 0;
-      overflow-y: scroll;
-      overflow-x: hidden;
-      z-index: 10;
-      -webkit-overflow-scrolling: touch;
-    }
+    body { background: #04000e; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; height: 100dvh; width: 100vw; }
+    #game-wrapper { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #04000e; z-index: 1; }
+    canvas#canvas { display: none; image-rendering: pixelated; image-rendering: crisp-edges; }
+    #scroll-layer { position: fixed; inset: 0; overflow-y: scroll; overflow-x: hidden; z-index: 10; -webkit-overflow-scrolling: touch; }
     #scroll-spacer { height: 300vh; }
-
-    #overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 20px 40px;
-      pointer-events: none;
-      transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
-                  visibility 0.55s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #overlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    #overlay::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-        ellipse 70% 65% at 50% 48%,
-        rgba(0,0,0,0.62) 0%,
-        transparent 100%
-      );
-      pointer-events: none;
-    }
-
-    .site-title {
-      position: relative;
-      font-size: clamp(2rem, 9vw, 4.5rem);
-      font-weight: 900;
-      color: #fff;
-      text-align: center;
-      letter-spacing: 0.02em;
-      margin-bottom: 28px;
-      text-shadow:
-        0 0 8px  rgba(255, 120,  30, 1.0),
-        0 0 24px rgba(255,  80,   0, 0.7),
-        0 0 60px rgba(255,  40,   0, 0.35),
-        0 0 100px rgba(255, 160, 60, 0.15);
-    }
-
-    .links {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 11px;
-      width: min(310px, 86vw);
-    }
-
-    .link-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 13px 20px;
-      background: rgba(255,255,255,0.09);
-      backdrop-filter: blur(20px) saturate(1.5);
-      -webkit-backdrop-filter: blur(20px) saturate(1.5);
-      border: 1.5px solid rgba(255,255,255,0.18);
-      border-radius: 100px;
-      color: #fff;
-      font-size: 0.93rem;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      pointer-events: auto;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
+    #overlay { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 20px 40px; pointer-events: none; transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.55s cubic-bezier(0.4, 0, 0.2, 1); }
+    #overlay.hidden { opacity: 0; visibility: hidden; }
+    #overlay::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 65% at 50% 48%, rgba(0,0,0,0.62) 0%, transparent 100%); pointer-events: none; }
+    .site-title { position: relative; font-size: clamp(2rem, 9vw, 4.5rem); font-weight: 900; color: #fff; text-align: center; letter-spacing: 0.02em; margin-bottom: 28px; text-shadow: 0 0 8px rgba(255,120,30,1), 0 0 24px rgba(255,80,0,0.7), 0 0 60px rgba(255,40,0,0.35), 0 0 100px rgba(255,160,60,0.15); }
+    .links { position: relative; display: flex; flex-direction: column; gap: 11px; width: min(310px, 86vw); }
+    .link-btn { display: flex; align-items: center; gap: 10px; padding: 13px 20px; background: rgba(255,255,255,0.09); backdrop-filter: blur(20px) saturate(1.5); -webkit-backdrop-filter: blur(20px) saturate(1.5); border: 1.5px solid rgba(255,255,255,0.18); border-radius: 100px; color: #fff; font-size: 0.93rem; font-weight: 600; text-decoration: none; cursor: pointer; pointer-events: auto; transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
     .link-btn svg { flex-shrink: 0; opacity: 0.85; }
-    .link-btn:hover {
-      background: rgba(255,255,255,0.18);
-      border-color: rgba(255,160,60,0.5);
-      box-shadow: 0 0 20px rgba(255,100,0,0.2);
-      transform: translateY(-1px);
-    }
+    .link-btn:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,160,60,0.5); box-shadow: 0 0 20px rgba(255,100,0,0.2); transform: translateY(-1px); }
     .link-btn:active { transform: scale(0.97); }
-
-    .scroll-hint {
-      position: relative;
-      margin-top: 22px;
-      font-size: 0.76rem;
-      font-weight: 500;
-      color: rgba(255,255,255,0.4);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      animation: nudge 2.4s ease-in-out infinite;
-    }
+    .scroll-hint { position: relative; margin-top: 22px; font-size: 0.76rem; font-weight: 500; color: rgba(255,255,255,0.4); display: flex; flex-direction: column; align-items: center; gap: 5px; letter-spacing: 0.08em; text-transform: uppercase; animation: nudge 2.4s ease-in-out infinite; }
     .scroll-hint .arr { font-size: 1rem; }
-    @keyframes nudge {
-      0%, 100% { transform: translateY(0);   opacity: 0.4; }
-      50%       { transform: translateY(6px); opacity: 0.7; }
-    }
-
-    .paddle {
-      position: fixed;
-      bottom: 0;
-      height: 42%;
-      width: 40%;
-      z-index: 30;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.45s ease;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      display: flex;
-      align-items: flex-end;
-      padding-bottom: 18px;
-    }
-    .paddle.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    @keyframes nudge { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(6px); opacity: 0.7; } }
+    .paddle { position: fixed; bottom: 0; height: 42%; width: 40%; z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.45s ease; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; display: flex; align-items: flex-end; padding-bottom: 18px; }
+    .paddle.active { opacity: 1; pointer-events: auto; }
     .paddle.lit { filter: brightness(1.6); }
-
-    #paddle-L {
-      left: 0;
-      background: radial-gradient(ellipse 100% 80% at 0% 100%, rgba(60,180,255,0.18) 0%, transparent 70%);
-      border-top-right-radius: 60%;
-      justify-content: flex-start;
-      padding-left: 14px;
-    }
-    #paddle-R {
-      right: 0;
-      background: radial-gradient(ellipse 100% 80% at 100% 100%, rgba(60,180,255,0.18) 0%, transparent 70%);
-      border-top-left-radius: 60%;
-      justify-content: flex-end;
-      padding-right: 14px;
-    }
-    .paddle-label {
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: rgba(255,255,255,0.45);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    #back-pill {
-      position: fixed;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 35;
-      background: rgba(8, 4, 20, 0.82);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: rgba(255,255,255,0.6);
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 8px 20px;
-      border-radius: 100px;
-      cursor: pointer;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.45s ease;
-      white-space: nowrap;
-      -webkit-tap-highlight-color: transparent;
-    }
+    #paddle-L { left: 0; background: radial-gradient(ellipse 100% 80% at 0% 100%, rgba(60,180,255,0.18) 0%, transparent 70%); border-top-right-radius: 60%; justify-content: flex-start; padding-left: 14px; }
+    #paddle-R { right: 0; background: radial-gradient(ellipse 100% 80% at 100% 100%, rgba(60,180,255,0.18) 0%, transparent 70%); border-top-left-radius: 60%; justify-content: flex-end; padding-right: 14px; }
+    .paddle-label { font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: 0.14em; text-transform: uppercase; }
+    #back-pill { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 35; background: rgba(8,4,20,0.82); border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.6); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 20px; border-radius: 100px; cursor: pointer; pointer-events: none; opacity: 0; transition: opacity 0.45s ease; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
     #back-pill.show { opacity: 1; pointer-events: auto; }
     #back-pill:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
-
-    #loader {
-      position: fixed;
-      inset: 0;
-      background: #04000e;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      transition: opacity 0.8s ease;
-    }
+    #loader { position: fixed; inset: 0; background: #04000e; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; transition: opacity 0.8s ease; }
     #loader.fade { opacity: 0; pointer-events: none; }
-
-    .load-title {
-      font-size: clamp(1.6rem, 6vw, 2.4rem);
-      font-weight: 900;
-      color: #fff;
-      margin-bottom: 24px;
-      letter-spacing: 0.02em;
-      text-shadow: 0 0 20px rgba(255,100,0,0.7);
-    }
-    .load-track {
-      width: 160px;
-      height: 3px;
-      background: rgba(255,255,255,0.07);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .load-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ff4400, #ffaa00);
-      width: 0%;
-      transition: width 0.4s ease;
-      border-radius: 2px;
-    }
-    .load-sub {
-      margin-top: 12px;
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.35);
-      letter-spacing: 0.06em;
-    }
-
+    .load-title { font-size: clamp(1.6rem, 6vw, 2.4rem); font-weight: 900; color: #fff; margin-bottom: 24px; letter-spacing: 0.02em; text-shadow: 0 0 20px rgba(255,100,0,0.7); }
+    .load-track { width: 160px; height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+    .load-fill { height: 100%; background: linear-gradient(90deg, #ff4400, #ffaa00); width: 0%; transition: width 0.4s ease; border-radius: 2px; }
+    .load-sub { margin-top: 12px; font-size: 0.72rem; color: rgba(255,255,255,0.35); letter-spacing: 0.06em; }
     #status, #progress { display: none !important; }
   </style>
 </head>
 <body>
-
-<div id="loader">
-  <div class="load-title">Kyle's Links</div>
-  <div class="load-track"><div class="load-fill" id="load-fill"></div></div>
-  <div class="load-sub" id="load-sub">Loading...</div>
-</div>
-
-<div id="game-wrapper">
-  <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
-</div>
-
+<div id="loader"><div class="load-title">Kyle's Links</div><div class="load-track"><div class="load-fill" id="load-fill"></div></div><div class="load-sub" id="load-sub">Loading...</div></div>
+<div id="game-wrapper"><canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas></div>
 <div id="overlay">
   <h1 class="site-title">Kyle's Links</h1>
   <div class="links">
-    <a class="link-btn" href="https://twitter.com/yourhandle" target="_blank" rel="noopener">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      Twitter / X
-    </a>
-    <a class="link-btn" href="https://instagram.com/yourhandle" target="_blank" rel="noopener">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-      Instagram
-    </a>
-    <a class="link-btn" href="https://linkedin.com/in/yourhandle" target="_blank" rel="noopener">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-      LinkedIn
-    </a>
-    <a class="link-btn" href="https://github.com/kylevincentt" target="_blank" rel="noopener">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-      GitHub
-    </a>
-    <a class="link-btn" href="mailto:kylevcrum@gmail.com">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.908 1.528-1.147C21.69 2.28 24 3.434 24 5.457z"/></svg>
-      Email Me
-    </a>
+    <a class="link-btn" href="https://twitter.com/yourhandle" target="_blank" rel="noopener"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Twitter / X</a>
+    <a class="link-btn" href="https://instagram.com/yourhandle" target="_blank" rel="noopener"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>Instagram</a>
+    <a class="link-btn" href="https://linkedin.com/in/yourhandle" target="_blank" rel="noopener"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a>
+    <a class="link-btn" href="https://github.com/kylevincentt" target="_blank" rel="noopener"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub</a>
+    <a class="link-btn" href="mailto:kylevcrum@gmail.com"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.908 1.528-1.147C21.69 2.28 24 3.434 24 5.457z"/></svg>Email Me</a>
   </div>
-  <div class="scroll-hint">
-    <span>Scroll down to play</span>
-    <span class="arr">↓</span>
-  </div>
+  <div class="scroll-hint"><span>Scroll down to play</span><span class="arr">↓</span></div>
 </div>
-
 <div class="paddle" id="paddle-L"><span class="paddle-label">Left</span></div>
 <div class="paddle" id="paddle-R"><span class="paddle-label">Right</span></div>
 <div id="back-pill" onclick="exitGame()">↑ Back to Links</div>
 <div id="status" style="display:none"></div>
 <progress id="progress" style="display:none" value="0" max="100"></progress>
-
 <script>
-var gameReady = false, inGameMode = false, ballLaunched = false, pendingLaunch = false;
-var overlay = document.getElementById('overlay');
-var paddleL = document.getElementById('paddle-L');
-var paddleR = document.getElementById('paddle-R');
-var backPill = document.getElementById('back-pill');
-var loadFill = document.getElementById('load-fill');
-var loadSub = document.getElementById('load-sub');
-var loader = document.getElementById('loader');
-
-var Module = {
-  preRun: [], postRun: [],
-  print: function(t) { console.log(t); },
-  printErr: function(t) { console.error(t); },
-  canvas: (function() {
-    var c = document.getElementById('canvas');
-    c.addEventListener('webglcontextlost', function(e) { e.preventDefault(); }, false);
-    return c;
-  })(),
-  setStatus: function(text) {
-    if (!Module.setStatus._last) Module.setStatus._last = '';
-    if (text === Module.setStatus._last) return;
-    Module.setStatus._last = text;
-    var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/( \d+)\)/);
-    if (m) {
-      var pct = Math.round(100 * parseInt(m[2]) / parseInt(m[4]));
-      loadFill.style.width = pct + '%';
-      loadSub.textContent = 'Loading... ' + pct + '%';
-    } else if (text === '') {
-      loadFill.style.width = '100%';
-      loadSub.textContent = 'Ready!';
-      setTimeout(function() {
-        loader.classList.add('fade');
-        var c = document.getElementById('canvas');
-        c.style.display = 'block';
-        gameReady = true;
-        resizeCanvas();
-        if (pendingLaunch) launchBall();
-        setTimeout(function() { loader.style.display = 'none'; }, 900);
-      }, 350);
-    } else {
-      loadSub.textContent = text;
-    }
-  },
-  totalDependencies: 0,
-  monitorRunDependencies: function(left) {
-    this.totalDependencies = Math.max(this.totalDependencies, left);
-    Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : '');
-  }
-};
+var gameReady=false,inGameMode=false,ballLaunched=false,pendingLaunch=false;
+var overlay=document.getElementById('overlay'),paddleL=document.getElementById('paddle-L'),paddleR=document.getElementById('paddle-R'),backPill=document.getElementById('back-pill'),loadFill=document.getElementById('load-fill'),loadSub=document.getElementById('load-sub'),loader=document.getElementById('loader');
+var Module={preRun:[],postRun:[],print:function(t){console.log(t);},printErr:function(t){console.error(t);},canvas:(function(){var c=document.getElementById('canvas');c.addEventListener('webglcontextlost',function(e){e.preventDefault();},false);return c;})(),setStatus:function(text){if(!Module.setStatus._last)Module.setStatus._last='';if(text===Module.setStatus._last)return;Module.setStatus._last=text;var m=text.match(/([^(]+)\((\d+(\.\d+)?)\/( \d+)\)/);if(m){var pct=Math.round(100*parseInt(m[2])/parseInt(m[4]));loadFill.style.width=pct+'%';loadSub.textContent='Loading... '+pct+'%';}else if(text===''){loadFill.style.width='100%';loadSub.textContent='Ready!';setTimeout(function(){loader.classList.add('fade');var c=document.getElementById('canvas');c.style.display='block';gameReady=true;resizeCanvas();if(pendingLaunch)launchBall();setTimeout(function(){loader.style.display='none';},900);},350);}else{loadSub.textContent=text;}},totalDependencies:0,monitorRunDependencies:function(left){this.totalDependencies=Math.max(this.totalDependencies,left);Module.setStatus(left?'Preparing... ('+(this.totalDependencies-left)+'/'+this.totalDependencies+')':'');}};
 Module.setStatus('Downloading...');
-window.onerror = function() { Module.setStatus('Error'); };
-
-function resizeCanvas() {
-  var c = document.getElementById('canvas');
-  if (!c || !c.width || !c.height) return;
-  var scale = Math.min(window.innerWidth / c.width, window.innerHeight / c.height);
-  c.style.width = (c.width * scale) + 'px';
-  c.style.height = (c.height * scale) + 'px';
-}
-window.addEventListener('resize', resizeCanvas);
-
-function fireKey(type, keyCode, key, code) {
-  var c = document.getElementById('canvas');
-  var opts = { bubbles: true, cancelable: true, key: key, code: code, keyCode: keyCode, which: keyCode };
-  [c, document, window].forEach(function(t) { try { t.dispatchEvent(new KeyboardEvent(type, opts)); } catch(e) {} });
-}
-var LDn = function() { fireKey('keydown', 90, 'z', 'KeyZ'); };
-var LUp = function() { fireKey('keyup', 90, 'z', 'KeyZ'); };
-var RDn = function() { fireKey('keydown', 191, '/', 'Slash'); };
-var RUp = function() { fireKey('keyup', 191, '/', 'Slash'); };
-
-function launchBall() {
-  if (ballLaunched) return;
-  ballLaunched = true;
-  fireKey('keydown', 32, ' ', 'Space');
-  setTimeout(function() { fireKey('keyup', 32, ' ', 'Space'); }, 750);
-}
-
-var sl = document.createElement('div');
-Object.assign(sl.style, { position: 'fixed', inset: '0', overflowY: 'scroll', overflowX: 'hidden', zIndex: '10', WebkitOverflowScrolling: 'touch' });
-var spacer = document.createElement('div');
-spacer.style.height = '300vh';
-sl.appendChild(spacer);
-document.body.appendChild(sl);
-
-function threshold() { return window.innerHeight * 0.42; }
-
-sl.addEventListener('scroll', function() {
-  if (sl.scrollTop > threshold()) { if (!inGameMode) enterGame(); }
-  else { if (inGameMode) _exitInternal(); }
-}, { passive: true });
-
-function enterGame() {
-  inGameMode = true;
-  overlay.classList.add('hidden');
-  paddleL.classList.add('active'); paddleR.classList.add('active');
-  backPill.classList.add('show');
-  sl.style.pointerEvents = 'none';
-  if (gameReady) launchBall(); else pendingLaunch = true;
-}
-function _exitInternal() {
-  inGameMode = false;
-  overlay.classList.remove('hidden');
-  paddleL.classList.remove('active'); paddleR.classList.remove('active');
-  backPill.classList.remove('show');
-  sl.style.pointerEvents = 'auto';
-}
-function exitGame() { _exitInternal(); sl.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-function bindPaddle(el, dn, up) {
-  function press(e)  { e.preventDefault(); dn(); el.classList.add('lit'); }
-  function release(e){ e.preventDefault(); up(); el.classList.remove('lit'); }
-  el.addEventListener('mousedown', press); el.addEventListener('mouseup', release); el.addEventListener('mouseleave', release);
-  el.addEventListener('touchstart', press, { passive: false }); el.addEventListener('touchend', release, { passive: false }); el.addEventListener('touchcancel', release);
-}
-bindPaddle(paddleL, LDn, LUp);
-bindPaddle(paddleR, RDn, RUp);
-
-var cv = document.getElementById('canvas');
-cv.addEventListener('mousedown', function(e) { var mid = cv.getBoundingClientRect().left + cv.getBoundingClientRect().width/2; (e.clientX < mid) ? LDn() : RDn(); });
-cv.addEventListener('mouseup', function() { LUp(); RUp(); });
-cv.addEventListener('touchstart', function(e) { e.preventDefault(); var mid = cv.getBoundingClientRect().left + cv.getBoundingClientRect().width/2; for (var i=0; i<e.changedTouches.length; i++) { (e.changedTouches[i].clientX < mid) ? LDn() : RDn(); } }, { passive: false });
-cv.addEventListener('touchend', function(e) { e.preventDefault(); LUp(); RUp(); }, { passive: false });
+window.onerror=function(){Module.setStatus('Error');};
+function resizeCanvas(){var c=document.getElementById('canvas');if(!c||!c.width||!c.height)return;var scale=Math.min(window.innerWidth/c.width,window.innerHeight/c.height);c.style.width=(c.width*scale)+'px';c.style.height=(c.height*scale)+'px';}
+window.addEventListener('resize',resizeCanvas);
+function fireKey(type,keyCode,key,code){var c=document.getElementById('canvas');var opts={bubbles:true,cancelable:true,key:key,code:code,keyCode:keyCode,which:keyCode};[c,document,window].forEach(function(t){try{t.dispatchEvent(new KeyboardEvent(type,opts));}catch(e){}});}
+var LDn=function(){fireKey('keydown',90,'z','KeyZ');};var LUp=function(){fireKey('keyup',90,'z','KeyZ');};var RDn=function(){fireKey('keydown',191,'/','Slash');};var RUp=function(){fireKey('keyup',191,'/','Slash');};
+function launchBall(){if(ballLaunched)return;ballLaunched=true;fireKey('keydown',32,' ','Space');setTimeout(function(){fireKey('keyup',32,' ','Space');},750);}
+var sl=document.createElement('div');
+Object.assign(sl.style,{position:'fixed',inset:'0',overflowY:'scroll',overflowX:'hidden',zIndex:'10',WebkitOverflowScrolling:'touch'});
+var spacer=document.createElement('div');spacer.style.height='300vh';sl.appendChild(spacer);document.body.appendChild(sl);
+function threshold(){return window.innerHeight*0.42;}
+sl.addEventListener('scroll',function(){if(sl.scrollTop>threshold()){if(!inGameMode)enterGame();}else{if(inGameMode)_exitInternal();}},{passive:true});
+function enterGame(){inGameMode=true;overlay.classList.add('hidden');paddleL.classList.add('active');paddleR.classList.add('active');backPill.classList.add('show');sl.style.pointerEvents='none';if(gameReady)launchBall();else pendingLaunch=true;}
+function _exitInternal(){inGameMode=false;overlay.classList.remove('hidden');paddleL.classList.remove('active');paddleR.classList.remove('active');backPill.classList.remove('show');sl.style.pointerEvents='auto';}
+function exitGame(){_exitInternal();sl.scrollTo({top:0,behavior:'smooth'});}
+function bindPaddle(el,dn,up){function press(e){e.preventDefault();dn();el.classList.add('lit');}function release(e){e.preventDefault();up();el.classList.remove('lit');}el.addEventListener('mousedown',press);el.addEventListener('mouseup',release);el.addEventListener('mouseleave',release);el.addEventListener('touchstart',press,{passive:false});el.addEventListener('touchend',release,{passive:false});el.addEventListener('touchcancel',release);}
+bindPaddle(paddleL,LDn,LUp);bindPaddle(paddleR,RDn,RUp);
+var cv=document.getElementById('canvas');
+cv.addEventListener('mousedown',function(e){var mid=cv.getBoundingClientRect().left+cv.getBoundingClientRect().width/2;(e.clientX<mid)?LDn():RDn();});
+cv.addEventListener('mouseup',function(){LUp();RUp();});
+cv.addEventListener('touchstart',function(e){e.preventDefault();var mid=cv.getBoundingClientRect().left+cv.getBoundingClientRect().width/2;for(var i=0;i<e.changedTouches.length;i++){(e.changedTouches[i].clientX<mid)?LDn():RDn();}},{passive:false});
+cv.addEventListener('touchend',function(e){e.preventDefault();LUp();RUp();},{passive:false});
 </script>
-<script async src="SpaceCadetPinball.js"></script>
+<script async src="https://raw.githubusercontent.com/alula/SpaceCadetPinball/a93547299a2ed7bd602630c0be3a43648e25a886/SpaceCadetPinball.js"></script>
 </body>
 </html>
