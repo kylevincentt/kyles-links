@@ -87,6 +87,8 @@ cv.addEventListener('mouseup',function(){LUp();RUp();});
 cv.addEventListener('touchstart',function(e){e.preventDefault();var mid=cv.getBoundingClientRect().left+cv.getBoundingClientRect().width/2;for(var i=0;i<e.changedTouches.length;i++){(e.changedTouches[i].clientX<mid)?LDn():RDn();}},{passive:false});
 cv.addEventListener('touchend',function(e){e.preventDefault();LUp();RUp();},{passive:false});
 </script>
-<script async src="https://raw.githubusercontent.com/alula/SpaceCadetPinball/a93547299a2ed7bd602630c0be3a43648e25a886/SpaceCadetPinball.js"></script>
+<!-- Game JS loaded from alula's GitHub Pages (has open CORS headers) -->
+<!-- The Emscripten JS auto-discovers .wasm and .data from the same origin -->
+<script async src="https://alula.github.io/SpaceCadetPinball/SpaceCadetPinball.js"></script>
 </body>
 </html>
