@@ -50,17 +50,6 @@
       display: block; /* removes inline baseline gap */
     }
 
-    /* ── Scroll layer (captures scroll, passes clicks through when gaming) ── */
-    #scroll-layer {
-      position: fixed;
-      inset: 0;
-      overflow-y: scroll;
-      overflow-x: hidden;
-      z-index: 10;
-      -webkit-overflow-scrolling: touch;
-    }
-    #scroll-spacer { height: 300vh; }
-
     /* ── Links overlay ─────────────────────────────────────────────────────── */
     #overlay {
       position: fixed;
@@ -72,10 +61,13 @@
       justify-content: center;
       padding: 24px 20px 40px;
       pointer-events: none;
-      transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
-                  visibility 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(0);
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                  opacity 0.5s ease,
+                  visibility 0s linear 0.65s;
     }
     #overlay.hidden {
+      transform: translateY(-110vh);
       opacity: 0;
       visibility: hidden;
     }
@@ -534,67 +526,30 @@ function launchBall() {
   setTimeout(function() { fireKey('keyup', 32, ' ', 'Space'); }, 750);
 }
 
-// ─── Scroll layer ─────────────────────────────────────────────────────────────
-var sl = document.createElement('div');
-sl.id = 'scroll-layer';
-Object.assign(sl.style, {
-  position: 'fixed', inset: '0',
-  overflowY: 'scroll', overflowX: 'hidden',
-  zIndex: '10',
-  WebkitOverflowScrolling: 'touch'
-});
-var spacer = document.createElement('div');
-spacer.id = 'scroll-spacer';
-spacer.style.height = '300vh';
-sl.appendChild(spacer);
-document.body.appendChild(sl);
-
-function threshold() { return window.innerHeight * 0.42; }
-
-sl.addEventListener('scroll', function() {
-  if (sl.scrollTop > threshold()) {
-    if (!inGameMode) enterGame();
-  } else {
-    if (inGameMode) _exitInternal();
-  }
-}, { passive: true });
-
 // ─── Game mode enter / exit ───────────────────────────────────────────────────
 function enterGame() {
+  if (inGameMode) return;
   inGameMode = true;
   overlay.classList.add('hidden');
   backPill.classList.add('show');
-
-  if (IS_MOBILE) {
-    // Enable game controls immediately
-    paddleL.classList.add('active');
-    paddleR.classList.add('active');
-    sl.style.pointerEvents = 'none'; // let touches reach the canvas
-  } else {
-    // Desktop: launch immediately and pass clicks through to canvas
-    paddleL.classList.add('active');
-    paddleR.classList.add('active');
-    sl.style.pointerEvents = 'none';
-    if (gameReady) launchBall();
-    else pendingLaunch = true;
-  }
+  paddleL.classList.add('active');
+  paddleR.classList.add('active');
 }
 
-// Called only from scroll listener (user scrolled back above threshold)
-function _exitInternal() {
+function exitGame() {
+  if (!inGameMode) return;
   inGameMode = false;
   overlay.classList.remove('hidden');
   paddleL.classList.remove('active');
   paddleR.classList.remove('active');
   backPill.classList.remove('show');
-  sl.style.pointerEvents = 'auto'; // re-enable scrolling
+  ballLaunched  = false;
+  pendingLaunch = false;
 }
 
-// Called from back pill — scroll programmatically to top
-function exitGame() {
-  _exitInternal();
-  sl.scrollTo({ top: 0, behavior: 'smooth' });
-}
+// Clicking the Bliss background exits game mode
+var blissBg = document.getElementById('bliss-bg');
+if (blissBg) blissBg.addEventListener('click', function() { exitGame(); });
 
 // ─── Paddle controls ──────────────────────────────────────────────────────────
 function bindPaddle(el, dn, up) {
@@ -614,36 +569,44 @@ bindPaddle(paddleR, RDn, RUp);
 var cv = document.getElementById('canvas');
 
 cv.addEventListener('mousedown', function(e) {
+  if (!inGameMode) { enterGame(); return; }
+  if (!ballLaunched) { if (gameReady) launchBall(); else pendingLaunch = true; }
   var mid = cv.getBoundingClientRect().left + cv.getBoundingClientRect().width / 2;
   (e.clientX < mid) ? LDn() : RDn();
 });
-cv.addEventListener('mouseup',   function() { LUp(); RUp(); });
+cv.addEventListener('mouseup', function() { LUp(); RUp(); });
+
 cv.addEventListener('touchstart', function(e) {
   e.preventDefault();
+
+  // First touch on canvas: enter game mode (buttons slide up)
+  if (!inGameMode) { enterGame(); return; }
+
+  // Any touch launches the ball if not yet launched
+  if (!ballLaunched) {
+    if (gameReady) launchBall();
+    else pendingLaunch = true;
+  }
+
+  // Paddle zones — use visible width so zones align with the table on portrait
   var rect = cv.getBoundingClientRect();
-  // On portrait mobile the canvas is wider than the screen (scoreboard clipped off).
-  // Use the visible width (screen width) so all three zones land on-screen.
   var visW = Math.min(rect.width, window.innerWidth);
-  var leftZone  = rect.left + visW * 0.30;
-  var rightZone = rect.left + visW * 0.70;
+  var leftZone  = rect.left + visW * 0.33;
+  var rightZone = rect.left + visW * 0.67;
   for (var i = 0; i < e.changedTouches.length; i++) {
     var x = e.changedTouches[i].clientX;
     if (x < leftZone) {
       LDn();
     } else if (x > rightZone) {
-      // Launch ball on first tap of right side (if not yet launched)
-      if (!ballLaunched) {
-        if (gameReady) launchBall();
-        else pendingLaunch = true;
-      }
       RDn();
     } else {
-      // Center zone: pull and release plunger — launches any ball (1st, 2nd, …)
+      // Centre zone: pull and release plunger
       fireKey('keydown', 32, ' ', 'Space');
       setTimeout(function() { fireKey('keyup', 32, ' ', 'Space'); }, 750);
     }
   }
 }, { passive: false });
+
 cv.addEventListener('touchend', function(e) {
   e.preventDefault(); LUp(); RUp();
 }, { passive: false });
