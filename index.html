@@ -92,10 +92,10 @@
     /* ── Desktop icons — tiny WinXP-style shortcuts over Bliss ─────────────── */
     #desktop-icons {
       position: fixed;
-      top: 0;
+      top: 60%;
       left: 0;
       right: 0;
-      padding: 14px 16px 10px;
+      padding: 0 16px 10px;
       z-index: 15;
       display: flex;
       flex-direction: column;
@@ -310,20 +310,14 @@
       text-transform: uppercase;
     }
 
-    /* ── Top-right control cluster: Mute + Back pill (game mode) ───────────── */
+    /* ── Control buttons (centered in desktop-icons, game mode) ────────────── */
     #game-controls {
-      position: fixed;
-      top: 12px;
-      right: 12px;
-      z-index: 35;
       display: flex;
       gap: 8px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.45s ease;
+      justify-content: center;
     }
-    #game-controls.show { opacity: 1; pointer-events: auto; }
     .ctrl-btn {
+      pointer-events: auto;
       background: rgba(8, 4, 20, 0.82);
       border: 1px solid rgba(255,255,255,0.16);
       color: rgba(255,255,255,0.75);
@@ -409,16 +403,7 @@
       #overlay, #overlay.hidden { transition: opacity 0.3s ease, visibility 0s linear; }
     }
 
-    /* Respect safe area insets on notched devices */
-    @supports (padding: max(0px)) {
-      #game-controls {
-        top: max(12px, env(safe-area-inset-top));
-        right: max(12px, env(safe-area-inset-right));
-      }
-      #desktop-icons {
-        padding-top: max(14px, env(safe-area-inset-top));
-      }
-    }
+
 
     /* Visually-hidden for screen readers only */
     .sr-only {
@@ -450,6 +435,10 @@
 <!-- Desktop icons: title + tiny WinXP-style shortcuts shown over Bliss in game mode -->
 <nav id="desktop-icons" aria-label="Kyle's links (desktop)">
   <div class="bliss-title" aria-hidden="true">Kyle's Links</div>
+  <div id="game-controls">
+    <button type="button" class="ctrl-btn" id="back-btn" title="Return to links">← Back</button>
+    <button type="button" class="ctrl-btn" id="mute-btn" aria-pressed="false" title="Mute / unmute pinball audio">🔊 Sound</button>
+  </div>
   <div class="desk-icons-grid">
     <a class="desk-icon" href="https://github.com/kylevincentt" target="_blank" rel="noopener noreferrer">
       <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></div>
@@ -511,11 +500,6 @@
 <div class="paddle" id="paddle-L" aria-hidden="true"><span class="paddle-label">Left</span></div>
 <div class="paddle" id="paddle-R" aria-hidden="true"><span class="paddle-label">Right</span></div>
 
-<!-- Top-right controls: Mute + Back to links (game mode only) -->
-<div id="game-controls">
-  <button type="button" class="ctrl-btn" id="mute-btn" aria-pressed="false" title="Mute / unmute pinball audio">🔊 Sound</button>
-  <button type="button" class="ctrl-btn" id="back-btn" title="Return to links">← Links</button>
-</div>
 
 <!-- Emscripten hooks (hidden) -->
 <div id="status" style="display:none"></div>
@@ -552,7 +536,6 @@ var TABLE_FRAC = 0.64;
 // ─── State ────────────────────────────────────────────────────────────────────
 var gameReady       = false;
 var inGameMode      = false;
-var ballLaunched    = false;
 var pendingLaunch   = false;
 var launchTimeout   = null;
 
@@ -676,8 +659,6 @@ var RDn = function() { fireKey('keydown', 191, '/', 'Slash'); };
 var RUp = function() { fireKey('keyup',   191, '/', 'Slash'); };
 
 function launchBall() {
-  if (ballLaunched) return;
-  ballLaunched = true;
   fireKey('keydown', 32, ' ', 'Space');
   setTimeout(function() { fireKey('keyup', 32, ' ', 'Space'); }, 750);
 }
@@ -688,7 +669,6 @@ function enterGame() {
   inGameMode = true;
   paddleL.classList.add('active');
   paddleR.classList.add('active');
-  gameControls.classList.add('show');
 
   overlay.classList.add('hidden');
   function onSlideUp(e) {
@@ -702,11 +682,9 @@ function enterGame() {
 function exitGame() {
   if (!inGameMode) return;
   inGameMode = false;
-  ballLaunched  = false;
   pendingLaunch = false;
   paddleL.classList.remove('active');
   paddleR.classList.remove('active');
-  gameControls.classList.remove('show');
 
   desktopIcons.classList.remove('show');
   setTimeout(function() {
@@ -775,10 +753,8 @@ bindPaddle(paddleR, RDn, RUp);
 var cv = document.getElementById('canvas');
 
 function tryLaunch() {
-  if (!ballLaunched) {
-    if (gameReady) launchBall();
-    else pendingLaunch = true;
-  }
+  if (gameReady) launchBall();
+  else pendingLaunch = true;
 }
 
 cv.addEventListener('mousedown', function(e) {
