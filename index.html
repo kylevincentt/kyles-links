@@ -458,7 +458,7 @@
   <div class="bliss-title" aria-hidden="true">Kyle's Links</div>
   <div id="game-controls">
     <button type="button" class="ctrl-btn" id="back-btn" title="Return to links">← Back</button>
-    <button type="button" class="ctrl-btn" id="mute-btn" aria-pressed="false" title="Mute / unmute pinball audio">🔊 Sound</button>
+    <button type="button" class="ctrl-btn" id="mute-btn" aria-pressed="true"  title="Toggle background music">🔇 Music</button>
   </div>
   <div class="desk-icons-grid">
     <a class="desk-icon" href="https://dopl.work" target="_blank" rel="noopener noreferrer">
@@ -628,6 +628,9 @@ var Module = {
           if (c.width > 0 && c.height > 0) {
             resizeCanvas();
             if (pendingLaunch) launchBall();
+            // Apply default music-muted state once the module is running
+            applyMusicMute(musicMuted);
+            setTimeout(function() { applyMusicMute(musicMuted); }, 1000);
           } else {
             setTimeout(waitForSize, 50);
           }
@@ -748,36 +751,33 @@ backBtn.addEventListener('click', function(e) { e.stopPropagation(); exitGame();
 var blissBg = document.getElementById('bliss-bg');
 if (blissBg) blissBg.addEventListener('click', function() { exitGame(); });
 
-// ─── Mute toggle ──────────────────────────────────────────────────────────────
-// The Emscripten Space Cadet exposes AL (OpenAL) on the Module or via the
-// AudioContext. We flip the master gain or the AudioContext.state to mute.
-var muted = false;
-function setMuted(v) {
-  muted = v;
-  muteBtn.textContent = v ? '🔇 Muted' : '🔊 Sound';
-  muteBtn.setAttribute('aria-pressed', v ? 'true' : 'false');
+// ─── Music toggle (SFX always on) ─────────────────────────────────────────────
+// Music is muted by default. The Sound button toggles music only.
+// SFX (bumpers, flippers, ball launch, etc.) run through Mix_PlayChannel
+// and are never suspended — only Mix_VolumeMusic is touched.
+var musicMuted = true;
 
-  // Walk every AudioContext we can find and suspend/resume.
+function applyMusicMute(v) {
   try {
-    var ctxs = [];
-    if (window.Module && window.Module.SDL2 && window.Module.SDL2.audioContext) {
-      ctxs.push(window.Module.SDL2.audioContext);
+    // SDL_mixer exposes Mix_VolumeMusic(volume) — 0 = silent, 128 = full.
+    // This is compiled into the Emscripten module and only affects the music
+    // stream; sound-effect channels are untouched.
+    if (window.Module && typeof window.Module._Mix_VolumeMusic === 'function') {
+      window.Module._Mix_VolumeMusic(v ? 0 : 128);
     }
-    // Heuristic: Emscripten SDL audio stores a context on `Module`
-    if (window.Module && window.Module.AL && window.Module.AL.currentCtx) {
-      var al = window.Module.AL.currentCtx;
-      if (al && al.audioCtx) ctxs.push(al.audioCtx);
-    }
-    ctxs.forEach(function(ctx) {
-      if (!ctx) return;
-      if (v && ctx.state === 'running') ctx.suspend();
-      else if (!v && ctx.state === 'suspended') ctx.resume();
-    });
   } catch (err) { /* silent */ }
 }
+
+function setMusicMuted(v) {
+  musicMuted = v;
+  muteBtn.textContent = v ? '🔇 Music' : '🔊 Music';
+  muteBtn.setAttribute('aria-pressed', v ? 'true' : 'false');
+  applyMusicMute(v);
+}
+
 muteBtn.addEventListener('click', function(e) {
   e.stopPropagation();
-  setMuted(!muted);
+  setMusicMuted(!musicMuted);
 });
 
 // ─── Paddle controls ──────────────────────────────────────────────────────────
