@@ -159,12 +159,17 @@
     .desk-icon:focus-visible { outline: 2px dotted #fff; outline-offset: 2px; }
 
     .desk-icon-img {
-      width: 38px;
-      height: 38px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
-      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7));
+      background: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255,255,255,0.30);
+      border-radius: 5px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        0 1px 4px rgba(0,0,0,0.55);
     }
     .desk-icon span {
       font-size: 0.78rem;
@@ -433,27 +438,8 @@
       letter-spacing: 0.06em;
     }
 
-    /* ── Mobile portrait: shrink desktop icons so all 5 fit in one row ────── */
+    /* ── Mobile portrait: tighter header so the icons can take 2 rows ──────── */
     @media (max-width: 768px) and (orientation: portrait) {
-      .desk-icons-grid {
-        gap: 4px;
-        flex-wrap: nowrap;
-      }
-      .desk-icon {
-        width: 60px;
-        padding: 4px 2px 5px;
-      }
-      .desk-icon-img {
-        width: 30px;
-        height: 30px;
-      }
-      .desk-icon-img > svg {
-        width: 22px;
-        height: 22px;
-      }
-      .desk-icon span {
-        font-size: 0.66rem;
-      }
       .ctrl-btn {
         font-size: 0.62rem;
         padding: 6px 10px;
@@ -687,9 +673,11 @@ var Module = {
           if (c.width > 0 && c.height > 0) {
             resizeCanvas();
             if (pendingLaunch) launchBall();
-            // Apply default music-muted state once the module is running
+            // Apply default music-muted state once the module is running,
+            // then keep a watchdog re-applying for ~30s in case music starts
+            // asynchronously after the first user interaction.
             applyMusicMute(musicMuted);
-            setTimeout(function() { applyMusicMute(musicMuted); }, 1000);
+            startMuteWatcher();
           } else {
             setTimeout(waitForSize, 50);
           }
@@ -811,21 +799,63 @@ var blissBg = document.getElementById('bliss-bg');
 if (blissBg) blissBg.addEventListener('click', function() { exitGame(); });
 
 // ─── Music toggle (SFX always on) ─────────────────────────────────────────────
-// Music is muted by default. The Sound button toggles music only.
-// SFX (bumpers, flippers, ball launch, etc.) run through Mix_PlayChannel
-// and are never suspended — only Mix_VolumeMusic is touched.
+// Music is muted by default. The Music button toggles music only — SFX run
+// through Mix_PlayChannel and are not affected.
+//
+// We try several mute strategies in sequence because the alula/SpaceCadetPinball
+// build doesn't necessarily expose the SDL2_mixer functions in a single way:
+//   1. Direct WASM export Module._Mix_VolumeMusic
+//   2. Module.ccall('Mix_VolumeMusic', ...)
+//   3. Mute any <audio> elements (some Emscripten builds use HTMLAudio for music)
+// We also persist the mute via a watchdog interval that re-applies it for the
+// first ~30 seconds, in case music starts asynchronously after first interaction.
 var musicMuted = true;
 
 function applyMusicMute(v) {
+  var vol = v ? 0 : 128;
+  // (1) Direct export
   try {
-    // SDL_mixer exposes Mix_VolumeMusic(volume) — 0 = silent, 128 = full.
-    // This is compiled into the Emscripten module and only affects the music
-    // stream; sound-effect channels are untouched.
     if (window.Module && typeof window.Module._Mix_VolumeMusic === 'function') {
-      window.Module._Mix_VolumeMusic(v ? 0 : 128);
+      window.Module._Mix_VolumeMusic(vol);
     }
-  } catch (err) { /* silent */ }
+  } catch (e) {}
+  // (2) ccall fallback
+  try {
+    if (window.Module && typeof window.Module.ccall === 'function') {
+      window.Module.ccall('Mix_VolumeMusic', 'number', ['number'], [vol]);
+    }
+  } catch (e) {}
+  // (3) HTMLAudio element fallback
+  try {
+    document.querySelectorAll('audio').forEach(function(a) { a.muted = v; });
+  } catch (e) {}
 }
+
+// Repeatedly re-apply mute during startup to catch music that begins playing
+// only after the first user interaction (browser audio-policy unblock).
+var muteWatcher = null;
+function startMuteWatcher() {
+  if (muteWatcher) return;
+  var ticks = 0;
+  muteWatcher = setInterval(function() {
+    if (musicMuted) applyMusicMute(true);
+    if (++ticks > 60) { clearInterval(muteWatcher); muteWatcher = null; }
+  }, 500);
+}
+
+// Also reapply on the first user interaction (when browser unlocks audio)
+function reapplyOnFirstInteraction() {
+  function fire() {
+    if (musicMuted) applyMusicMute(true);
+    window.removeEventListener('pointerdown', fire, true);
+    window.removeEventListener('keydown', fire, true);
+    window.removeEventListener('touchstart', fire, true);
+  }
+  window.addEventListener('pointerdown', fire, true);
+  window.addEventListener('keydown', fire, true);
+  window.addEventListener('touchstart', fire, true);
+}
+reapplyOnFirstInteraction();
 
 function setMusicMuted(v) {
   musicMuted = v;
