@@ -217,9 +217,19 @@
       flex-direction: column;
       gap: 11px;
       width: min(310px, 86vw);
+      /* Show ~6 buttons; scroll to reveal the rest (sliver of #7 as a cue) */
+      max-height: min(468px, calc(100dvh - 210px));
+      overflow-y: auto;
+      pointer-events: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      -webkit-mask-image: linear-gradient(to bottom, #000 92%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 92%, transparent 100%);
     }
+    .links::-webkit-scrollbar { display: none; }
 
     .link-btn {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -492,6 +502,10 @@
     <button type="button" class="ctrl-btn" id="mute-btn" aria-pressed="true" title="Toggle background music">🔇 Music</button>
   </div>
   <div class="desk-icons-grid">
+    <a class="desk-icon" href="https://offlinemind.org" target="_blank" rel="noopener noreferrer">
+      <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M15 7v4h1v2h-3V5h2l-3-4-3 4h2v8H8v-2.07c.7-.37 1.2-1.08 1.2-1.93 0-1.21-.99-2.2-2.2-2.2-1.21 0-2.2.99-2.2 2.2 0 .85.5 1.56 1.2 1.93V13c0 1.11.89 2 2 2h3v3.05c-.71.37-1.2 1.1-1.2 1.95 0 1.22.98 2.2 2.2 2.2 1.21 0 2.2-.98 2.2-2.2 0-.85-.49-1.58-1.2-1.95V15h3c1.11 0 2-.89 2-2v-2h1V7h-4z"/></svg></div>
+      <span>Offline Mind</span>
+    </a>
     <a class="desk-icon" href="https://usedoppel.com" target="_blank" rel="noopener noreferrer">
       <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
       <span>Doppel</span>
@@ -500,17 +514,17 @@
       <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
       <span>Keepsake</span>
     </a>
-    <a class="desk-icon" href="https://christcornerstone.org" target="_blank" rel="noopener noreferrer">
-      <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3h-2v7H4v2h7v9h2v-9h7v-2h-7z"/></svg></div>
-      <span>Cornerstone</span>
-    </a>
-    <a class="desk-icon" href="https://wordfall-production.up.railway.app/" target="_blank" rel="noopener noreferrer">
-      <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M13 8.57c-.79 0-1.43.64-1.43 1.43s.64 1.43 1.43 1.43 1.43-.64 1.43-1.43-.64-1.43-1.43-1.43z"/><path d="M13 3C9.25 3 6.2 5.94 6.02 9.64L4.1 12.2c-.25.33-.01.8.4.8H6v3c0 1.1.9 2 2 2h1v3h7v-4.68c2.36-1.12 4-3.53 4-6.32 0-3.87-3.13-7-7-7zm3 7c0 .13-.01.26-.02.39l.83.66c.08.06.1.16.05.25l-.8 1.39c-.05.09-.16.12-.24.09l-.99-.4c-.21.16-.43.29-.67.39L14 13.83c-.01.1-.1.17-.2.17h-1.6c-.1 0-.18-.07-.2-.17l-.15-1.06c-.25-.1-.47-.23-.68-.39l-.99.4c-.09.03-.2 0-.25-.09l-.8-1.39c-.05-.08-.03-.19.05-.25l.84-.66c-.01-.13-.02-.26-.02-.39 0-.13.01-.26.02-.39l-.83-.66c-.08-.06-.1-.16-.05-.25l.8-1.39c.05-.09.16-.12.24-.09l.99.4c.21-.16.43-.29.67-.39L11.99 6c.02-.1.1-.17.2-.17h1.6c.1 0 .18.07.2.17l.15 1.06c.25.1.47.23.68.39l.99-.4c.09-.03.2 0 .25.09l.8 1.39c.05.09.03.19-.05.25l-.83.66c.01.13.02.26.02.39z"/></svg></div>
-      <span>Wordfall</span>
+    <a class="desk-icon" href="https://ebay.io/m/jWjWCh" target="_blank" rel="noopener noreferrer">
+      <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M3 7v6a9 9 0 0 0 18 0V7h-5v6a4 4 0 0 1-8 0V7H3zm0-5h5v3H3V2zm13 0h5v3h-5V2z"/></svg></div>
+      <span>Steel Stays</span>
     </a>
     <a class="desk-icon" href="https://ebay.us/m/9WCqwG" target="_blank" rel="noopener noreferrer">
       <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M4.25 5.61C6.57 8.59 10 13 10 13v6c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-6s3.43-4.41 5.75-7.39c.51-.66.04-1.61-.79-1.61H5.04c-.83 0-1.3.95-.79 1.61z"/></svg></div>
       <span>Powder Pour 2.0</span>
+    </a>
+    <a class="desk-icon" href="https://christcornerstone.org" target="_blank" rel="noopener noreferrer">
+      <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3h-2v7H4v2h7v9h2v-9h7v-2h-7z"/></svg></div>
+      <span>Cornerstone</span>
     </a>
     <a class="desk-icon" href="https://www.oldtownpostcard.com/" target="_blank" rel="noopener noreferrer">
       <div class="desk-icon-img" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v10h16V7H4zm2 2h6v5H6V9zm8 0h4v1h-4V9zm0 2h4v1h-4v-1zm0 2h4v1h-4v-1zm-8 3h12v1H6v-1z"/></svg></div>
@@ -530,6 +544,16 @@
 <main id="overlay">
   <h1 class="site-title">Kyle's Links</h1>
   <nav class="links" aria-label="Kyle's links">
+
+    <a class="link-btn" href="https://offlinemind.org" target="_blank" rel="noopener noreferrer">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M15 7v4h1v2h-3V5h2l-3-4-3 4h2v8H8v-2.07c.7-.37 1.2-1.08 1.2-1.93 0-1.21-.99-2.2-2.2-2.2-1.21 0-2.2.99-2.2 2.2 0 .85.5 1.56 1.2 1.93V13c0 1.11.89 2 2 2h3v3.05c-.71.37-1.2 1.1-1.2 1.95 0 1.22.98 2.2 2.2 2.2 1.21 0 2.2-.98 2.2-2.2 0-.85-.49-1.58-1.2-1.95V15h3c1.11 0 2-.89 2-2v-2h1V7h-4z"/>
+      </svg>
+      <span class="link-btn-inner">
+        <span class="link-btn-title">Offline Mind</span>
+        <span class="link-btn-desc">AI on a USB Drive</span>
+      </span>
+    </a>
 
     <a class="link-btn" href="https://usedoppel.com" target="_blank" rel="noopener noreferrer">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -551,24 +575,13 @@
       </span>
     </a>
 
-    <a class="link-btn" href="https://christcornerstone.org" target="_blank" rel="noopener noreferrer">
+    <a class="link-btn" href="https://ebay.io/m/jWjWCh" target="_blank" rel="noopener noreferrer">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M13 3h-2v7H4v2h7v9h2v-9h7v-2h-7z"/>
+        <path d="M3 7v6a9 9 0 0 0 18 0V7h-5v6a4 4 0 0 1-8 0V7H3zm0-5h5v3H3V2zm13 0h5v3h-5V2z"/>
       </svg>
       <span class="link-btn-inner">
-        <span class="link-btn-title">Cornerstone</span>
-        <span class="link-btn-desc">Christian Faith Handbook</span>
-      </span>
-    </a>
-
-    <a class="link-btn" href="https://wordfall-production.up.railway.app/" target="_blank" rel="noopener noreferrer">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M13 8.57c-.79 0-1.43.64-1.43 1.43s.64 1.43 1.43 1.43 1.43-.64 1.43-1.43-.64-1.43-1.43-1.43z"/>
-        <path d="M13 3C9.25 3 6.2 5.94 6.02 9.64L4.1 12.2c-.25.33-.01.8.4.8H6v3c0 1.1.9 2 2 2h1v3h7v-4.68c2.36-1.12 4-3.53 4-6.32 0-3.87-3.13-7-7-7zm3 7c0 .13-.01.26-.02.39l.83.66c.08.06.1.16.05.25l-.8 1.39c-.05.09-.16.12-.24.09l-.99-.4c-.21.16-.43.29-.67.39L14 13.83c-.01.1-.1.17-.2.17h-1.6c-.1 0-.18-.07-.2-.17l-.15-1.06c-.25-.1-.47-.23-.68-.39l-.99.4c-.09.03-.2 0-.25-.09l-.8-1.39c-.05-.08-.03-.19.05-.25l.84-.66c-.01-.13-.02-.26-.02-.39 0-.13.01-.26.02-.39l-.83-.66c-.08-.06-.1-.16-.05-.25l.8-1.39c.05-.09.16-.12.24-.09l.99.4c.21-.16.43-.29.67-.39L11.99 6c.02-.1.1-.17.2-.17h1.6c.1 0 .18.07.2.17l.15 1.06c.25.1.47.23.68.39l.99-.4c.09-.03.2 0 .25.09l.8 1.39c.05.09.03.19-.05.25l-.83.66c.01.13.02.26.02.39z"/>
-      </svg>
-      <span class="link-btn-inner">
-        <span class="link-btn-title">Wordfall</span>
-        <span class="link-btn-desc">Catch the words. Kill distractions.</span>
+        <span class="link-btn-title">Steel Stays</span>
+        <span class="link-btn-desc">Magnetic Collar Stays</span>
       </span>
     </a>
 
@@ -579,6 +592,16 @@
       <span class="link-btn-inner">
         <span class="link-btn-title">Powder Pour 2.0</span>
         <span class="link-btn-desc">Viral Funnel Scoop</span>
+      </span>
+    </a>
+
+    <a class="link-btn" href="https://christcornerstone.org" target="_blank" rel="noopener noreferrer">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M13 3h-2v7H4v2h7v9h2v-9h7v-2h-7z"/>
+      </svg>
+      <span class="link-btn-inner">
+        <span class="link-btn-title">Cornerstone</span>
+        <span class="link-btn-desc">Christian Faith Handbook</span>
       </span>
     </a>
 
